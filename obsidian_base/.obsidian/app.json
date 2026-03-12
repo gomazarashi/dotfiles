@@ -1,0 +1,7 @@
+{
+  "readableLineLength": true,
+  "spellcheck": false,
+  "alwaysUpdateLinks": true,
+  "attachmentFolderPath": "./attachments",
+  "promptDelete": false
+}
