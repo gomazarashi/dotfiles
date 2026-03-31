@@ -6,29 +6,37 @@
   home.stateVersion = "25.11";
 
   home.packages = with pkgs; [
+    # 基本的なCLIツール
     git
     curl
     wget
     jq
+    fd
+    ripgrep
     tree
     htop
-    ripgrep
-    fd
-    unzip
-    zip
 
+    # エディタと文書作成
     vim
     neovim
-    gh
     ffmpeg
     pandoc
+    typst
+
+    # 圧縮・展開とクリップボード
+    unzip
+    zip
     xsel
+
+    # ネットワークと診断
+    gh
     whois
     tcpdump
     traceroute
     iperf3
     nettools
 
+    # ビルドツール
     gcc
     cmake
     gnumake
@@ -39,6 +47,7 @@
     bison
     flex
 
+    # 言語系ツールチェーン
     python3
     pipx
     ruby
@@ -48,13 +57,14 @@
     uv
     nodejs_24
     bun
-    typst
 
+    # ナレッジ管理と作図
     drawio
     obsidian
+
+    # 画像編集とプレゼン
     inkscape
     pympress
-
     pinta
     gimp
     kdePackages.okular
