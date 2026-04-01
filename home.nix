@@ -51,9 +51,7 @@
     python3
     pipx
     ruby
-    cargo
-    rustc
-    rustfmt
+    rust-bin.stable.latest.default
     uv
     nodejs_24
     bun
