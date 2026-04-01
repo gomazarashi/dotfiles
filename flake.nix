@@ -23,7 +23,6 @@
         config.allowUnfreePredicate = pkg:
           builtins.elem (nixpkgs.lib.getName pkg) [
             "drawio"
-            "obsidian"
           ];
       };
     in {

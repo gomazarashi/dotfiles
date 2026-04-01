@@ -58,7 +58,6 @@
 
     # ナレッジ管理と作図
     drawio
-    obsidian
 
     # 画像編集とプレゼン
     inkscape
