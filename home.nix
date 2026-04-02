@@ -2,8 +2,10 @@
 { pkgs, ... }:
 
 {
-  home.username = "user";
-  home.homeDirectory = "/home/user";
+  imports = [
+    ./home-local.nix
+  ];
+
   home.stateVersion = "25.11";
 
   home.packages = with pkgs; [
