@@ -26,7 +26,7 @@
           ];
       };
     in {
-      homeConfigurations."user" = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations."main" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
           ./home.nix
