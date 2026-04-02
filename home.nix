@@ -82,7 +82,7 @@ in
 
   programs.git = {
     enable = true;
-    extraConfig = {
+    settings = {
       core = {
         autocrlf = "input";
         safecrlf = true;
