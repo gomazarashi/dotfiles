@@ -1,3 +1,4 @@
+# home.nix
 { pkgs, ... }:
 
 {
@@ -7,7 +8,6 @@
 
   home.packages = with pkgs; [
     # 基本的なCLIツール
-    git
     curl
     wget
     jq
@@ -74,6 +74,21 @@
   home.sessionVariables = {
     EDITOR = "vim";
   };
+
+  programs.git = {
+    enable = true;
+    extraConfig = {
+      core = {
+        autocrlf = "input";
+        safecrlf = true;
+        attributesFile = "~/.config/git/attributes";
+        excludesFile = "~/.config/git/ignore";
+      };
+    };
+  };
+
+  home.file.".config/git/attributes".source = ./.config/git/attributes;
+  home.file.".config/git/ignore".source = ./.config/git/ignore;
 
   programs.home-manager.enable = true;
 }
