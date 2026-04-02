@@ -1,10 +1,13 @@
 # home.nix
 { pkgs, ... }:
 
+let
+  user = builtins.getEnv "USER";
+  homeDir = builtins.getEnv "HOME";
+in
 {
-  imports = [
-    ./home-local.nix
-  ];
+  home.username = user;
+  home.homeDirectory = homeDir;
 
   home.stateVersion = "25.11";
 
