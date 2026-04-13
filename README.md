@@ -14,7 +14,6 @@
 - `flake.nix`: flake のエントリポイント。`nixpkgs` / `home-manager` / `rust-overlay` を定義
 - `flake.lock`: flake input のバージョン固定
 - `home.nix`: Home Manager の本体設定
-- `home-local.nix`: ローカル値のメモ用ファイル。現状の flake では読み込んでいません
 
 ### Codex
 
@@ -52,6 +51,7 @@
 - `home.homeDirectory = builtins.getEnv "HOME";`
 
 そのため、公開用のプレースホルダーを書き換える運用ではなく、実行環境の `USER` / `HOME` をそのまま使う構成です。
+この値を flake 評価時に参照するため、適用時は `--impure` を前提としています。
 
 主に次のツール群を Home Manager で導入しています。
 
@@ -75,14 +75,16 @@
 experimental-features = nix-command flakes
 ```
 
+`home.nix` が `builtins.getEnv` を使うため、評価は impure モードで行います。
+
 適用コマンド:
 
 ```bash
-home-manager switch --flake .#main
+home-manager switch --impure --flake .#main
 ```
 
 `home-manager` をまだ入れていない環境では、たとえば次のように実行できます。
 
 ```bash
-nix run home-manager/release-25.11 -- switch --flake .#main
+nix run home-manager/release-25.11 -- switch --impure --flake .#main
 ```
