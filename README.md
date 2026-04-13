@@ -1,52 +1,88 @@
-# README.md
-
 # dotfiles
 
-個人用の設定ファイルを管理するリポジトリです。現在は主に以下を管理しています。
+個人用の dotfiles リポジトリです。現在は主に次の設定を管理しています。
 
-- `Home Manager` ベースの Nix 設定
-- `Codex` の設定
-- `Obsidian` Vault 設定
+- `Nix` / `Home Manager` による開発環境
+- `Codex` の動作設定
+- `Obsidian` Vault の設定
+- `git` / `nix` のユーザー設定ファイル
 
 ## ディレクトリ構成
 
 ### Nix / Home Manager
 
-- `flake.nix`: Home Manager の flake エントリポイント
-- `home.nix`: Home Manager の本体設定
+- `flake.nix`: flake のエントリポイント。`nixpkgs` / `home-manager` / `rust-overlay` を定義
 - `flake.lock`: flake input のバージョン固定
+- `home.nix`: Home Manager の本体設定
+- `home-local.nix`: ローカル値のメモ用ファイル。現状の flake では読み込んでいません
 
 ### Codex
 
-- `.codex/config.toml`: Codex のモデル、サンドボックス、ネットワーク設定
+- `.codex/config.toml`: モデル、reasoning effort、sandbox、ネットワーク利用などの設定
+- `.codex/AGENTS.md`: Codex 向けの作業ルール
+
+### Git / Nix
+
+- `.config/git/attributes`: Git attributes
+- `.config/git/ignore`: グローバル ignore
+- `.config/nix/nix.conf`: `nix-command` / `flakes` の有効化
 
 ### Obsidian
 
-- `.obsidian/app.json`: エディタ挙動（リンク更新、添付先など）
-- `.obsidian/appearance.json`: 表示設定（フォントサイズなど）
-- `.obsidian/core-plugins.json`: コアプラグイン有効/無効設定
+- `.obsidian/app.json`: エディタ挙動
+- `.obsidian/appearance.json`: 表示設定
+- `.obsidian/core-plugins.json`: コアプラグイン設定
 - `.obsidian/community-plugins.json`: Community Plugin 一覧
-- `.obsidian/templates.json`: Templates フォルダ設定
-- `.obsidian/plugins/`: Community Plugins ごとの設定ディレクトリ
+- `.obsidian/templates.json`: Templates 設定
+- `.obsidian/plugins/`: Community Plugin ごとの設定
 
-## Nix 設定について
+現在の Community Plugin:
 
-このリポジトリの Nix 設定は、公開用にプレースホルダーを含む最小構成として管理しています。
+- `editor-width-slider`
+- `templater-obsidian`
+- `obsidian-git`
 
-現在のプレースホルダー値:
+## Home Manager 設定
 
-- `flake.nix`
-  - `homeConfigurations."user"`
-- `home.nix`
-  - `home.username = "user";`
-  - `home.homeDirectory = "/home/user";`
+現在の flake では `homeConfigurations."main"` をエクスポートしています。
 
-利用前に、自分の環境に合わせてこれらを書き換えてください。
+`home.nix` ではユーザー名とホームディレクトリを固定値ではなく環境変数から取得します。
+
+- `home.username = builtins.getEnv "USER";`
+- `home.homeDirectory = builtins.getEnv "HOME";`
+
+そのため、公開用のプレースホルダーを書き換える運用ではなく、実行環境の `USER` / `HOME` をそのまま使う構成です。
+
+主に次のツール群を Home Manager で導入しています。
+
+- CLI ツール: `curl`, `wget`, `jq`, `fd`, `ripgrep`, `tree`, `htop`
+- エディタ・文書系: `vim`, `neovim`, `pandoc`, `typst`, `ffmpeg`
+- 開発ツール: `gcc`, `cmake`, `gnumake`, `pkg-config`, `autoconf`, `automake`, `libtool`, `bison`, `flex`
+- 言語環境: `python3`, `pipx`, `ruby`, `rust-bin.stable.latest.default`, `uv`, `nodejs_24`, `bun`
+- その他: `gh`, `drawio`, `inkscape`, `gimp`, `okular` など
+
+また、以下も Home Manager で設定しています。
+
+- `$HOME/bin` を `PATH` に追加
+- `EDITOR=vim`
+- Git の `attributesFile` / `excludesFile`
 
 ## 適用方法
 
-Nix flakes が有効な環境で、プレースホルダーを書き換えた後に次を実行します。
+事前に `Nix` で flakes を使える状態にしておきます。手元では `.config/nix/nix.conf` に次を置いています。
+
+```conf
+experimental-features = nix-command flakes
+```
+
+適用コマンド:
 
 ```bash
-home-manager switch --flake .#your-username
+home-manager switch --flake .#main
+```
+
+`home-manager` をまだ入れていない環境では、たとえば次のように実行できます。
+
+```bash
+nix run home-manager/release-25.11 -- switch --flake .#main
 ```
