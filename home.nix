@@ -11,6 +11,8 @@ in
 
   home.stateVersion = "25.11";
 
+  targets.genericLinux.enable = true;
+
   home.packages = with pkgs; [
     # 基本的なCLIツール
     curl
@@ -70,6 +72,10 @@ in
     pinta
     gimp
     kdePackages.okular
+
+    # terminal / multiplexer
+    tmux
+    ghostty
   ];
 
   home.sessionPath = [
@@ -92,8 +98,10 @@ in
     };
   };
 
-  home.file.".config/git/attributes".source = ./.config/git/attributes;
-  home.file.".config/git/ignore".source = ./.config/git/ignore;
+  xdg.configFile."git/attributes".source = ./.config/git/attributes;
+  xdg.configFile."git/ignore".source = ./.config/git/ignore;
+  xdg.configFile."tmux/tmux.conf".source = ./.config/tmux/tmux.conf;
+  xdg.configFile."ghostty/config".source = ./.config/ghostty/config;
 
   programs.home-manager.enable = true;
 }

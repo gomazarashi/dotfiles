@@ -1,3 +1,4 @@
+# flake.nix
 {
   description = "Minimal public Home Manager dotfiles";
 
