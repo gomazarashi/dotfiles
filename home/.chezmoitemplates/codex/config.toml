@@ -1,0 +1,24 @@
+# ~/.codex/config.toml
+
+model = "gpt-5.6-terra"
+model_reasoning_effort = "xhigh"
+
+sandbox_mode = "workspace-write"
+approval_policy = "never"
+personality = "pragmatic"
+
+web_search = "live"
+
+[sandbox_workspace_write]
+network_access = true
+
+[windows]
+sandbox = "elevated"
+
+[marketplaces.ponytail]
+source_type = "git"
+source = "https://github.com/DietrichGebert/ponytail.git"
+
+[plugins."ponytail@ponytail"]
+enabled = true
+

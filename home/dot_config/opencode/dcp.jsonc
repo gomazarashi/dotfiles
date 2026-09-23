@@ -1,0 +1,43 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Opencode-DCP/opencode-dynamic-context-pruning/master/dcp.schema.json",
+  // 自動 update はしない。upgrade は opencode.jsonc の pin を上げて行う。
+  "autoUpdate": false,
+  // true にすると ~/.config/opencode/logs/dcp/ へ log 出力。
+  "debug": false,
+  // tool 実行後一定 turn は pruning から保護する。
+  "turnProtection": {
+    "enabled": true,
+    "turns": 8
+  },
+  // 圧縮要約に残したいファイル。
+  "protectedFilePatterns": [
+    "**/AGENTS.md",
+    "**/PLAN.md",
+    "**/TODO.md"
+  ],
+  "compress": {
+    "mode": "range",
+    // 段階的導入の確認期間を終え、圧縮を自動許可する。
+    // ask のままだと著者不在の長時間セッションでコンテキストが埋まった時に
+    // 応答者がおらず停止するため。
+    "permission": "allow",
+    // モデルのコンテキスト量に対する割合で指定（1M級共通設定）。
+    "minContextLimit": "35%",
+    "maxContextLimit": "60%",
+    // ユーザーメッセージは圧縮せず原文のまま保護する。
+    // 注意: 大きく paste した prompt は圧縮されなくなる。
+    "protectUserMessages": true
+  },
+  "strategies": {
+    "deduplication": {
+      "enabled": true
+    },
+    "purgeErrors": {
+      "enabled": true,
+      "turns": 8
+    }
+  },
+  "experimental": {
+    "allowSubAgents": false
+  }
+}

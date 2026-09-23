@@ -1,0 +1,2 @@
+# repo 自体の改行を LF に統一 (Stow 適用前の Windows でも効くように)
+* text=auto eol=lf

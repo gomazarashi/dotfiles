@@ -1,0 +1,23 @@
+# ~/.dotfiles/ghostty/.config/ghostty/config
+
+# 使用するフォント。
+# 日本語表示と Nerd Fonts / Powerline グリフに対応した UDEV Gothic NF を使用する。
+font-family = UDEV Gothic NF
+
+# フォントサイズ。
+font-size = 13
+
+# 前景色と背景色の最低コントラスト比。
+# 極端に低コントラストな文字が見えなくなることを防ぐため、デフォルトの 1.0 から少し上げる。
+minimum-contrast = 1.1
+
+# キーボード入力中はマウスポインタを非表示にする。
+# マウスを動かすと再表示される。
+mouse-hide-while-typing = true
+
+# Shell Integration で SSH 用の機能を追加で有効化する。
+# ssh-env:
+#   SSH 接続時に TERM / COLORTERM などの環境変数を適切に扱う。
+# ssh-terminfo:
+#   接続先に Ghostty の terminfo がない場合、利用可能であれば自動的に導入する。
+shell-integration-features = ssh-env,ssh-terminfo

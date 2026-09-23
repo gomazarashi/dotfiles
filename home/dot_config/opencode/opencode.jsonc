@@ -1,0 +1,75 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // コーディングセッションを誤って公開しない。
+  "share": "disabled",
+
+  // 既定モデル。opencode-go provider経由でDeepSeek V4.1 Flashを使う。
+  "model": "opencode-go/deepseek-v4.1-flash",
+
+  // 既定の推論レベル。deepseek-v4.1-flash で使用できる最大値 (low/high/max のうち max)。
+  // variant 未選択時も max で動作させるため options で既定化する。
+  "provider": {
+    "opencode-go": {
+      "models": {
+        "deepseek-v4.1-flash": {
+          "options": {
+            "reasoningEffort": "max"
+          }
+        }
+      }
+    }
+  },
+
+  // DCP (Dynamic Context Pruning) plugin と ponytail plugin。
+  // version は pin し、upgrade は意図的に行う (@latest は使わない)。
+  "plugin": [
+    "@tarquinen/opencode-dcp@3.1.15",
+    "@dietrichgebert/ponytail@4.9.0"
+  ],
+
+  // DCP 評価中は native compaction を無効化する。
+  // 手動の /compact は emergency fallback として利用できる。
+  "compaction": {
+    "auto": false,
+    "prune": false
+  },
+
+  "permission": {
+    // 現在のworktree内のファイル編集を許可する。
+    "edit": "allow",
+
+    // Web調査を事前承認する。
+    "websearch": "allow",
+    "webfetch": "allow",
+
+    // 現在のプロジェクト外へのアクセスでは確認を求める。
+    "external_directory": "ask",
+
+    // Shellコマンドは、原則として確認を求める。
+    // 明らかに非破壊な調査コマンドのみを事前承認する。
+    "bash": {
+      "*": "ask",
+
+      "pwd": "allow",
+      "ls": "allow",
+      "ls *": "allow",
+
+      "git status": "allow",
+      "git status *": "allow",
+      "git diff": "allow",
+      "git diff *": "allow",
+      "git log": "allow",
+      "git log *": "allow",
+      "git show": "allow",
+      "git show *": "allow",
+      "git rev-parse *": "allow",
+      "git ls-files": "allow",
+      "git ls-files *": "allow",
+      "git grep *": "allow",
+      "git branch --show-current": "allow",
+      "git branch --list": "allow",
+      "git branch --list *": "allow"
+    }
+  }
+}

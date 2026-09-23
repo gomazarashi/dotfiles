@@ -1,0 +1,7 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $base := includeTemplate "codex/config.toml" . | fromToml -}}
+{{- $merged := $base -}}
+{{- if ne (trim .chezmoi.stdin) "" -}}
+{{- $merged = mergeOverwrite (fromToml .chezmoi.stdin) $base -}}
+{{- end -}}
+{{ toToml $merged }}

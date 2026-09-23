@@ -1,0 +1,19 @@
+{{ if eq .chezmoi.os "windows" -}}
+# Linux 専用
+.bashrc
+.profile
+.config/ghostty
+.config/ghostty/**
+.config/nix
+.config/nix/**
+.config/ponytail
+.config/ponytail/**
+.config/tmux
+.config/tmux/**
+.config/zed
+.config/zed/**
+{{ else -}}
+# Windows 専用 (%APPDATA% 配下)
+AppData
+AppData/**
+{{ end -}}
