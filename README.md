@@ -34,6 +34,7 @@ chezmoi cd               # source ディレクトリでシェルを開く
 | `dot_bashrc` | `~/.bashrc` | `dot_` は先頭の `.` |
 | `dot_config/opencode/opencode.jsonc` | `~/.config/opencode/opencode.jsonc` | ディレクトリ構造がそのまま対応する |
 | `AppData/Roaming/Zed/settings.json.tmpl` | `%APPDATA%\Zed\settings.json` | Windows のみ |
+| `readonly_Documents/PowerShell/Microsoft.PowerShell_profile.ps1` | `$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` | Windows のみ |
 | `dot_codex/modify_config.toml` | `~/.codex/config.toml` | 特殊 (下の「Codex」を参照) |
 
 - `.tmpl` が付いたファイルは**テンプレート**。`{{ ... }}` が展開されてから配置される
@@ -151,11 +152,12 @@ chezmoi apply
 | `bin/opencode-full.ps1` | `%USERPROFILE%\bin\opencode-full.ps1` |
 | `AppData/Roaming/ponytail/config.json.tmpl` | `%APPDATA%\ponytail\config.json` |
 | `AppData/Roaming/Zed/settings.json.tmpl` | `%APPDATA%\Zed\settings.json` |
+| `readonly_Documents/PowerShell/Microsoft.PowerShell_profile.ps1` | `%USERPROFILE%\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` |
 | `dot_gitconfig` | `%USERPROFILE%\.gitconfig` |
 | `dot_config/git/attributes` | `%USERPROFILE%\.config\git\attributes` |
 | `dot_config/git/ignore` | `%USERPROFILE%\.config\git\ignore` |
 
-OS 専用ファイルは `.chezmoiignore` の template 条件で制御する (Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,ponytail,tmux,zed}`、Windows 専用: `AppData/**`)。
+OS 専用ファイルは `.chezmoiignore` の template 条件で制御する (Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,ponytail,tmux,zed}`、Windows 専用: `AppData/**` / `Documents/**`)。
 
 ## Codex
 
