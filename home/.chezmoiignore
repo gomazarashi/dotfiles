@@ -16,4 +16,6 @@
 # Windows 専用 (%APPDATA% 配下)
 AppData
 AppData/**
+Documents
+Documents/**
 {{ end -}}
