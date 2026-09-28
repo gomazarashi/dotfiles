@@ -10,7 +10,7 @@ personality = "pragmatic"
 web_search = "live"
 
 [features]
-daemon_auto_start = true
+daemon_auto_start = false
 
 [sandbox_workspace_write]
 network_access = true
