@@ -7,15 +7,3 @@ try {
     $OutputEncoding = $utf8
 }
 catch {}
-
-function codex {
-    $codexCommand = Get-Command codex -CommandType Application -ErrorAction Stop |
-        Select-Object -First 1
-
-    if ($args -contains '--no-daemon') {
-        & $codexCommand.Source @args
-    }
-    else {
-        & $codexCommand.Source --no-daemon @args
-    }
-}
