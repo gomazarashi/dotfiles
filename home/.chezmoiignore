@@ -3,21 +3,13 @@
 .bashrc
 .profile
 .config/ghostty
-.config/ghostty/**
 .config/nix
-.config/nix/**
 .config/ponytail
-.config/ponytail/**
 .config/shell
-.config/shell/**
 .config/tmux
-.config/tmux/**
 .config/zed
-.config/zed/**
 {{ else -}}
 # Windows 専用 (%APPDATA% 配下)
 AppData
-AppData/**
 Documents
-Documents/**
 {{ end -}}
