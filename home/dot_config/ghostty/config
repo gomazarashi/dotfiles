@@ -1,4 +1,4 @@
-# ~/.dotfiles/ghostty/.config/ghostty/config
+# ~/.config/ghostty/config
 
 # 使用するフォント。
 # 日本語表示と Nerd Fonts / Powerline グリフに対応した UDEV Gothic NF を使用する。
