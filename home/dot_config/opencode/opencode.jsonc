@@ -28,7 +28,7 @@
     "@dietrichgebert/ponytail@4.9.0"
   ],
 
-  // DCP 評価中は native compaction を無効化する。
+  // native compaction は DCP に一本化する。
   // 手動の /compact は emergency fallback として利用できる。
   "compaction": {
     "auto": false,
