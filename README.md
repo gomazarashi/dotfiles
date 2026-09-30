@@ -97,8 +97,12 @@ sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b "$HOME/.local/bin"
 ```
 
 ```powershell
-# Windows (管理者権限不要)
-scoop install chezmoi   # または choco install chezmoi / winget install twpayne.chezmoi
+# Windows
+scoop install chezmoi            # 通常の PowerShell で可
+# または
+winget install twpayne.chezmoi   # 管理者権限不要
+# または
+choco install chezmoi            # 管理者権限のシェルで実行
 ```
 
 2. source state の場所を chezmoi に教える (`~/.config/chezmoi/chezmoi.toml`)
