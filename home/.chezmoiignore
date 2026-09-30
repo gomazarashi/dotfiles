@@ -9,7 +9,8 @@
 .config/tmux
 .config/zed
 {{ else -}}
-# Windows 専用 (%APPDATA% 配下)
+# Windows 専用 (bin/opencode-full.ps1 / %APPDATA% / Documents)
+bin/opencode-full.ps1
 AppData
 Documents
 {{ end -}}

@@ -132,7 +132,6 @@ chezmoi apply
 | `dot_config/opencode/opencode.jsonc` | `~/.config/opencode/opencode.jsonc` |
 | `dot_config/opencode/dcp.jsonc` | `~/.config/opencode/dcp.jsonc` |
 | `dot_config/opencode/AGENTS.md` | `~/.config/opencode/AGENTS.md` |
-| `bin/opencode-full.ps1` | `~/bin/opencode-full.ps1` |
 | `dot_config/ponytail/config.json.tmpl` | `~/.config/ponytail/config.json` |
 | `dot_config/zed/settings.json.tmpl` | `~/.config/zed/settings.json` |
 | `dot_gitconfig` | `~/.gitconfig` |
@@ -162,7 +161,7 @@ chezmoi apply
 | `dot_config/git/attributes` | `%USERPROFILE%\.config\git\attributes` |
 | `dot_config/git/ignore` | `%USERPROFILE%\.config\git\ignore` |
 
-OS 専用ファイルは `.chezmoiignore` の template 条件で制御する (Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,ponytail,shell,tmux,zed}`、Windows 専用: `AppData/**` / `Documents/**`)。
+OS 専用ファイルは `.chezmoiignore` の template 条件で制御する (Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,ponytail,shell,tmux,zed}`、Windows 専用: `bin/opencode-full.ps1` / `AppData/**` / `Documents/**`)。
 
 ## Codex
 
@@ -185,7 +184,7 @@ OS 専用ファイルは `.chezmoiignore` の template 条件で制御する (Li
 - Codex では OFF (`defaultMode: off`)、OpenCode では wrapper 経由で FULL (`PONYTAIL_DEFAULT_MODE=full` をプロセス限定で適用)
 
 ```sh
-PONYTAIL_DEFAULT_MODE=full opencode  # Linux
+opencode-full  # Linux (alias。実体は PONYTAIL_DEFAULT_MODE=full opencode)
 ```
 
 ```powershell
