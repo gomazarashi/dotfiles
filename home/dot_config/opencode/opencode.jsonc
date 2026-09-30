@@ -24,8 +24,8 @@
   // DCP (Dynamic Context Pruning) plugin と ponytail plugin。
   // version は pin し、upgrade は意図的に行う (@latest は使わない)。
   "plugin": [
-    "@tarquinen/opencode-dcp@3.1.15",
-    "@dietrichgebert/ponytail@4.9.0"
+    "@tarquinen/opencode-dcp@3.2.0",
+    "@dietrichgebert/ponytail@4.10.0"
   ],
 
   // native compaction は DCP に一本化する。
