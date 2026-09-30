@@ -8,6 +8,8 @@
 .config/nix/**
 .config/ponytail
 .config/ponytail/**
+.config/shell
+.config/shell/**
 .config/tmux
 .config/tmux/**
 .config/zed

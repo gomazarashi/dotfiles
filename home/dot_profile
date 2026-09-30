@@ -17,36 +17,7 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 fi
 
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
-fi
-
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
-fi
-
-# >>> juliaup initialize >>>
-# !! Contents within this block are managed by juliaup !!
-case ":$PATH:" in
-    *:"$HOME/.juliaup/bin":*)
-        ;;
-    *)
-        export PATH="$HOME/.juliaup/bin${PATH:+:${PATH}}"
-        ;;
-esac
-# <<< juliaup initialize <<<
-. "$HOME/.deno/env"
-. "$HOME/.cargo/env"
-
-# OpenCode: make the command available in login and non-interactive shells.
-if [ -d "$HOME/.opencode/bin" ]; then
-    case ":$PATH:" in
-        *:"$HOME/.opencode/bin":*)
-            ;;
-        *)
-            export PATH="$HOME/.opencode/bin${PATH:+:${PATH}}"
-            ;;
-    esac
+# PATH (~/.bashrc と共通)
+if [ -f "$HOME/.config/shell/path.sh" ]; then
+    . "$HOME/.config/shell/path.sh"
 fi

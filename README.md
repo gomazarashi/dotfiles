@@ -35,7 +35,7 @@ chezmoi cd               # source ディレクトリでシェルを開く
 | `dot_config/opencode/opencode.jsonc` | `~/.config/opencode/opencode.jsonc` | ディレクトリ構造がそのまま対応する |
 | `AppData/Roaming/Zed/settings.json.tmpl` | `%APPDATA%\Zed\settings.json` | Windows のみ |
 | `readonly_Documents/PowerShell/Microsoft.PowerShell_profile.ps1` | `$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` | Windows のみ |
-| `dot_codex/modify_config.toml` | `~/.codex/config.toml` | 特殊 (下の「Codex」を参照) |
+| `dot_codex/modify_private_config.toml` | `~/.codex/config.toml` | 特殊 (下の「Codex」を参照) |
 
 - `.tmpl` が付いたファイルは**テンプレート**。`{{ ... }}` が展開されてから配置される
 - 同じ内容を複数の配置先で使う場合は `.chezmoitemplates/` に 1 つだけ置き、各ファイルから `includeTemplate` で参照する (Ponytail / Zed がこの方式)
@@ -123,7 +123,7 @@ chezmoi apply
 
 | source (`home/` 以下) | target |
 |---|---|
-| `dot_codex/modify_config.toml` + `.chezmoitemplates/codex/config.toml` | `~/.codex/config.toml` |
+| `dot_codex/modify_private_config.toml` + `.chezmoitemplates/codex/config.toml` | `~/.codex/config.toml` |
 | `dot_codex/AGENTS.md` | `~/.codex/AGENTS.md` |
 | `dot_config/opencode/opencode.jsonc` | `~/.config/opencode/opencode.jsonc` |
 | `dot_config/opencode/dcp.jsonc` | `~/.config/opencode/dcp.jsonc` |
@@ -136,6 +136,7 @@ chezmoi apply
 | `dot_config/git/ignore` | `~/.config/git/ignore` |
 | `dot_bashrc` | `~/.bashrc` |
 | `dot_profile` | `~/.profile` |
+| `dot_config/shell/path.sh` | `~/.config/shell/path.sh` (PATH 設定。`.bashrc` / `.profile` の両方から読み込む) |
 | `dot_config/tmux/tmux.conf` | `~/.config/tmux/tmux.conf` |
 | `dot_config/ghostty/config` | `~/.config/ghostty/config` |
 | `dot_config/nix/nix.conf` | `~/.config/nix/nix.conf` |
@@ -144,7 +145,7 @@ chezmoi apply
 
 | source (`home/` 以下) | target |
 |---|---|
-| `dot_codex/modify_config.toml` + `.chezmoitemplates/codex/config.toml` | `%USERPROFILE%\.codex\config.toml` |
+| `dot_codex/modify_private_config.toml` + `.chezmoitemplates/codex/config.toml` | `%USERPROFILE%\.codex\config.toml` |
 | `dot_codex/AGENTS.md` | `%USERPROFILE%\.codex\AGENTS.md` |
 | `dot_config/opencode/opencode.jsonc` | `%USERPROFILE%\.config\opencode\opencode.jsonc` |
 | `dot_config/opencode/dcp.jsonc` | `%USERPROFILE%\.config\opencode\dcp.jsonc` |
@@ -157,11 +158,11 @@ chezmoi apply
 | `dot_config/git/attributes` | `%USERPROFILE%\.config\git\attributes` |
 | `dot_config/git/ignore` | `%USERPROFILE%\.config\git\ignore` |
 
-OS 専用ファイルは `.chezmoiignore` の template 条件で制御する (Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,ponytail,tmux,zed}`、Windows 専用: `AppData/**` / `Documents/**`)。
+OS 専用ファイルは `.chezmoiignore` の template 条件で制御する (Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,ponytail,shell,tmux,zed}`、Windows 専用: `AppData/**` / `Documents/**`)。
 
 ## Codex
 
-- `~/.codex/config.toml` は `home/dot_codex/modify_config.toml` (modify_ テンプレート) で管理する。`home/.chezmoitemplates/codex/config.toml` が portable な設定で、`chezmoi apply` はそこに書かれたキーだけを上書きする。Codex が自動生成した state (`[projects.*]` の trust、`mcp_servers`、`notify`、`marketplaces`、`plugins` など) は TOML マージで保持される。
+- `~/.codex/config.toml` は `home/dot_codex/modify_private_config.toml` (modify_ テンプレート、`private_` で権限 600 を維持) で管理する。`home/.chezmoitemplates/codex/config.toml` が portable な設定で、`chezmoi apply` はそこに書かれたキーだけを上書きする。Codex が自動生成した state (`[projects.*]` の trust、`mcp_servers`、`notify`、`marketplaces`、`plugins` など) は TOML マージで保持される。
 - portable 設定を変えるときは `home/.chezmoitemplates/codex/config.toml` を編集して apply する。`~/.codex/config.toml` を直接編集しても次の apply で元に戻る。
 - マシン固有の上書きは `~/.codex/local.config.toml` (Git 管理外) に書く。読み込ませるには `codex --profile local` を付ける。`--profile` は runtime 系コマンド専用 (`codex` / `exec` / `review` / `resume` / `mcp` など) で、`codex login` / `doctor` / `plugin` / `features` などには付けない。
 - apply のたびに `config.toml` は TOML として正規化される (コメント・キー順・空行は保存されない)。

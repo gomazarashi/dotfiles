@@ -117,40 +117,7 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# >>> juliaup initialize >>>
-# !! Contents within this block are managed by juliaup !!
-case ":$PATH:" in
-    *:"$HOME/.juliaup/bin":*)
-        ;;
-    *)
-        export PATH="$HOME/.juliaup/bin${PATH:+:${PATH}}"
-        ;;
-esac
-# <<< juliaup initialize <<<
-
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-. "$HOME/.deno/env"
-
-# Prefer Ubuntu toolchain before Nix.
-# This avoids mixing Ubuntu R with Nix make/glibc during R package builds.
-export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$HOME/.local/bin:$HOME/.deno/bin:$HOME/.juliaup/bin:/snap/bin:$PATH"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-. "$HOME/.cargo/env"
-export PATH="$HOME/.local/bin:$PATH"
-
-# opencode: make the command available in login and non-interactive shells.
-if [ -d "$HOME/.opencode/bin" ]; then
-    case ":$PATH:" in
-        *:"$HOME/.opencode/bin":*)
-            ;;
-        *)
-            export PATH="$HOME/.opencode/bin${PATH:+:${PATH}}"
-            ;;
-    esac
+# PATH (~/.profile と共通。/etc/bash.bashrc が先頭に追加した Nix を後ろへ回すため、ここでも読み込む)
+if [ -f "$HOME/.config/shell/path.sh" ]; then
+    . "$HOME/.config/shell/path.sh"
 fi
