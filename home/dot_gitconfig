@@ -6,7 +6,6 @@
 [core]
 	safecrlf = warn
 	autocrlf = input
-	eol = lf
 	# Windows only: bypass MAX_PATH (260 chars) via \\?\ prefix. No-op on Linux.
 	longpaths = true
 [fetch]
