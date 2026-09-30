@@ -10,3 +10,11 @@
 	longpaths = true
 [fetch]
 	prune = true
+[diff]
+	algorithm = histogram
+[merge]
+	conflictStyle = zdiff3
+[push]
+	autoSetupRemote = true
+[rerere]
+	enabled = true
