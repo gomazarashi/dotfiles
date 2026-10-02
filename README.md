@@ -178,6 +178,7 @@ OS 専用ファイルは `.chezmoiignore` の template 条件で制御する (Li
 - 既定モデル: `opencode-go/deepseek-v4.1-flash`
 - DCP 圧縮は自動許可 (`dcp.jsonc` の `permission: allow`)。native compaction は無効 (`auto/prune: false`)
 - DCP を止めるには plugin 配列から削除 (`--pure` で一時全無効化も可)
+- OpenCode v2 は Ponytail が未対応のため v1 を継続。Ponytail の v2 対応リリースが npm に公開されたことを確認し次第、v2 (`@opencode/cli` / `opencode2`) へ移行する。DCP 3.2.0 は v2 対応済み (2026-10 時点の調査。参照: [ponytail#907](https://github.com/DietrichGebert/ponytail/pull/907))
 
 ## Ponytail
 
