@@ -28,6 +28,8 @@
   },
   "theme": "dark",
   "autoCompactEnabled": true,
+{{- /* autoMode の environment は Linux 機で生成された内容のため Linux 限定で配備する */}}
+{{- if eq .chezmoi.os "linux" }}
   "autoMode": {
     "environment": [
       "### Org-wide",
@@ -56,6 +58,7 @@
       "**routine under <user>/ prefix**: none identified"
     ]
   },
+{{- end }}
   "attribution": {
     "commit": "",
     "pr": ""
