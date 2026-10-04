@@ -14,3 +14,7 @@ bin/opencode-full.ps1
 AppData
 Documents
 {{ end -}}
+{{ $alternate := get . "alternateGit" | default dict -}}
+{{ if not (get $alternate "enabled") -}}
+.gitconfig-alternate
+{{ end -}}

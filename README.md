@@ -134,7 +134,8 @@ chezmoi apply
 | `dot_config/opencode/AGENTS.md` | `~/.config/opencode/AGENTS.md` |
 | `dot_config/ponytail/config.json.tmpl` | `~/.config/ponytail/config.json` |
 | `dot_config/zed/settings.json.tmpl` | `~/.config/zed/settings.json` |
-| `dot_gitconfig` | `~/.gitconfig` |
+| `dot_gitconfig.tmpl` | `~/.gitconfig` |
+| `private_dot_gitconfig-alternate.tmpl` | `~/.gitconfig-alternate` (ローカル設定が有効な場合のみ) |
 | `dot_config/git/attributes` | `~/.config/git/attributes` |
 | `dot_config/git/ignore` | `~/.config/git/ignore` |
 | `dot_bashrc` | `~/.bashrc` |
@@ -157,11 +158,35 @@ chezmoi apply
 | `AppData/Roaming/ponytail/config.json.tmpl` | `%APPDATA%\ponytail\config.json` |
 | `AppData/Roaming/Zed/settings.json.tmpl` | `%APPDATA%\Zed\settings.json` |
 | `readonly_Documents/PowerShell/Microsoft.PowerShell_profile.ps1` | `%USERPROFILE%\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` |
-| `dot_gitconfig` | `%USERPROFILE%\.gitconfig` |
+| `dot_gitconfig.tmpl` | `%USERPROFILE%\.gitconfig` |
+| `private_dot_gitconfig-alternate.tmpl` | `%USERPROFILE%\.gitconfig-alternate` (ローカル設定が有効な場合のみ) |
 | `dot_config/git/attributes` | `%USERPROFILE%\.config\git\attributes` |
 | `dot_config/git/ignore` | `%USERPROFILE%\.config\git\ignore` |
 
 OS 専用ファイルは `.chezmoiignore` の template 条件で制御する (Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,ponytail,shell,tmux,zed}`、Windows 専用: `bin/opencode-full.ps1` / `AppData/**` / `Documents/**`)。
+
+## ディレクトリ別の Git アカウント
+
+通常の Git identity はそのまま維持し、ローカル設定で指定したディレクトリ以下だけ `includeIf` で `~/.gitconfig-alternate` を読み込む。Git の名前・メールアドレスと、SSH 認証に使う鍵を切り替える。
+
+各マシンの `~/.config/chezmoi/chezmoi.toml` に、既存の `sourceDir` 等を残したまま次の設定を追加する。値は各マシンに合わせて置き換える。このファイルや SSH 秘密鍵はリポジトリで管理しない。
+
+```toml
+[data.alternateGit]
+enabled = true
+directory = "/absolute/path/to/repositories"
+name = "Your commit name"
+email = "you@example.com"
+sshKey = "/absolute/path/to/private-key"
+```
+
+Windows のパスは `C:/path/to/repositories` のように `/` を使うか、TOML の単一引用符で囲む。ディレクトリ・鍵のパスには絶対パスを指定する。Ubuntu / Windows とも同じ仕組みで、設定未登録または `enabled = false` のマシンでは切り替えを行わない。
+
+鍵を別アカウントに登録し、対象リポジトリの GitHub remote に SSH URL を使用する。HTTPS URL では `core.sshCommand` による鍵の切り替えは働かない。リポジトリ固有の Git 設定や環境変数による上書きは、この設定より優先される。
+
+適用前には `chezmoi diff` と `chezmoi apply --dry-run --verbose` を確認する。これらの出力にはローカルの実値が含まれるため公開しない。今回のファイルだけを適用する場合は `chezmoi apply ~/.gitconfig ~/.gitconfig-alternate` を使う。無効化後も既存の alternate ファイルは残るが、通常設定からは読み込まれない。
+
+テンプレートの切り替えは `python tests/check_alternate_git.py` で検証できる (Python / chezmoi / Git が必要)。検証には仮の値と一時ディレクトリだけを使う。
 
 ## Codex
 

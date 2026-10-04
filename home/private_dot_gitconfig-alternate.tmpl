@@ -1,0 +1,8 @@
+{{- $alternate := get . "alternateGit" | default dict -}}
+{{- if get $alternate "enabled" -}}
+[user]
+	name = {{ get $alternate "name" | quote }}
+	email = {{ get $alternate "email" | quote }}
+[core]
+	sshCommand = {{ printf "ssh -i %s -o IdentitiesOnly=yes" (get $alternate "sshKey" | replace "\\" "/" | shellQuote) | quote }}
+{{ end -}}

@@ -18,3 +18,8 @@
 	autoSetupRemote = true
 [rerere]
 	enabled = true
+{{ $alternate := get . "alternateGit" | default dict -}}
+{{ if get $alternate "enabled" }}
+[includeIf {{ printf "gitdir:%s/" (get $alternate "directory" | replace "\\" "/" | trimSuffix "/") | quote }}]
+	path = ~/.gitconfig-alternate
+{{ end -}}
