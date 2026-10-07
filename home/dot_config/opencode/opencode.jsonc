@@ -25,14 +25,13 @@
   // version は pin し、upgrade は意図的に行う (@latest は使わない)。
   "plugin": [
     "@tarquinen/opencode-dcp@3.2.0",
-    "@dietrichgebert/ponytail@4.10.0"
+    "@dietrichgebert/ponytail@4.13.0"
   ],
 
   // native compaction は DCP に一本化する。
   // 手動の /compact は emergency fallback として利用できる。
   "compaction": {
-    "auto": false,
-    "prune": false
+    "auto": false
   },
 
   "permission": {

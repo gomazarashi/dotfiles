@@ -201,9 +201,10 @@ Windows のパスは `C:/path/to/repositories` のように `/` を使うか、T
 
 - plugin は version pin (`opencode.jsonc`)。起動時に自動 install される
 - 既定モデル: `opencode-go/deepseek-v4.1-flash`
-- DCP 圧縮は自動許可 (`dcp.jsonc` の `permission: allow`)。native compaction は無効 (`auto/prune: false`)
-- DCP を止めるには plugin 配列から削除 (`--pure` で一時全無効化も可)
-- OpenCode v2 は Ponytail が未対応のため v1 を継続。Ponytail の v2 対応リリースが npm に公開されたことを確認し次第、v2 (`@opencode/cli` / `opencode2`) へ移行する。DCP 3.2.0 は v2 対応済み (2026-10 時点の調査。参照: [ponytail#907](https://github.com/DietrichGebert/ponytail/pull/907))
+- DCP 圧縮は自動許可 (`dcp.jsonc` の `permission: allow`)。native compaction は無効 (`auto: false`。v2 で未対応の `prune` は指定しない)
+- DCP を止めるには plugin 配列から削除する
+- OpenCode v2 を使用。コマンドは `opencode` のまま、DCP 3.2.0 / Ponytail 4.13.0 を利用する。モデルと権限は v2 が読み込める既存形式を維持する (参照: [v2 移行ガイド](https://opencode.ai/v2/docs/migrate-v1)、[Ponytail v2 対応](https://github.com/DietrichGebert/ponytail/pull/907))。
+- Linux の導入: `curl -fsSL https://opencode.ai/v2/install | bash -s -- --version 2.0.24 --no-modify-path`。PATH は dotfiles で管理しているため installer では変更しない。
 
 ## Ponytail
 
