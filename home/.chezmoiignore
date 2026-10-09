@@ -4,13 +4,11 @@
 .profile
 .config/ghostty
 .config/nix
-.config/ponytail
 .config/shell
 .config/tmux
 .config/zed
 {{ else -}}
-# Windows 専用 (bin/opencode-full.ps1 / %APPDATA% / Documents)
-bin/opencode-full.ps1
+# Windows 専用 (%APPDATA% / Documents)
 AppData
 Documents
 {{ end -}}
