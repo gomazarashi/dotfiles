@@ -244,3 +244,17 @@ Git は着手時クリーンだった。実ファイルの SKILL.md、ディレ�
 - バックアップ: `.codex/skill-backups/ponytail-migration-20261010/`。Codex のプラグイン ZIP、変更前の Codex / OpenCode 設定、退避キャッシュ・runtime ファイル、diff / dry-run 出力を保存した。Git 管理外であり、設定の実値を含むため公開しない。
 
 既存セッションは読み込み済みのプラグイン指示が残る場合がある。新しいセッションで共通 Skill を使用する。プラグイン hooks・既定モード・自動更新の機能は移行対象に含めない。commit / push は行っていない。
+
+## コミット・プッシュ後の yomiyasu 移行と OpenCode v2 更新
+
+2026-10-10、共通管理と Ponytail の移行を `b162fce`（共通Skill管理の導入とPonytailの移行）として main にコミットし、origin/main へプッシュした。その後のユーザー指示により、次の作業を実施した。
+
+- yomiyasu 1.0.6 を共通原本へ取り込み、両配置先に chezmoi apply。11ファイルの一致を確認。出所と範囲は `docs/yomiyasu-source.md` を参照。
+- Claude の公式 CLI で `yomiyasu@yomiyasu` を user scope から uninstall（persistent data は保持）し、yomiyasu marketplace の user 登録を解除した。他の Claude 設定は変更前と意味的に一致することを確認した。dotfiles の marketplace 登録も除去した。
+- 移行前の1.0.6プラグインは ZIP と元ファイルの一致を確認して保存した。古い独立版1.0.4の退避・ZIPも保持する。復元用以外に旧版を有効化しない。
+- Scoop の versions bucket を追加し、opencode2 2.0.26 をダウンロード・ハッシュ検証後、opencode 1.18.34 を uninstall して opencode2 を install。コマンド名 opencode が v2.0.26 を返すことを確認。Scoop が展開用依存の7zip 26.04も導入した。
+- v1バイナリと設定は `.codex/skill-backups/opencode-v2-20261010/` に保存した。認証情報・モデル・権限・DCPは維持し、v2未対応の compaction.prune のみ除去した。
+- OpenCode に `skills: ["~/.agents/skills"]` を追加し、共通配置先を明示した。ローカルAPIの初期化前の skill.list は空で、セッション初期化と登録完了を待つ必要があった。確認用の一時セッションを作成・削除し、Ponytail6件とyomiyasuの7件が共通配置から認識されることを確認した。モデル推論は実行していない。確認用の localhost サーバーは停止済み。
+- Codex skills/list でも7件を確認。Claude は両OSの設定テンプレートのJSON解析と配置ファイルの一致まで確認し、実際のセッション一覧確認は未実施。
+- yomiyasu_lint.py と yomiyasu_diff.py は一時サンプルで実行し、JSON出力を確認した。共通Skill展開テストと既存Git設定テストは PASS。Ubuntu実機は未検証。
+- 全体 diff / dry-run を再確認し、削除差分はなかった。残る対象外の既存設定差分は適用していない。限定 Skill diff は空。

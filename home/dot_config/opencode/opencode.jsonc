@@ -4,6 +4,9 @@
   // コーディングセッションを誤って公開しない。
   "share": "disabled",
 
+  // v2 の互換ディレクトリ自動検出に依存せず、共通配置先を明示する。
+  "skills": ["~/.agents/skills"],
+
   // 既定モデル。opencode-go provider経由でDeepSeek V4.1 Flashを使う。
   "model": "opencode-go/deepseek-v4.1-flash",
 

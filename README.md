@@ -205,11 +205,11 @@ home/
 |---|---|---|
 | Codex | `~/.agents/skills/` | `%USERPROFILE%\.agents\skills\` |
 | Claude Code | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` |
-| OpenCode v2 | 上記の共通配置先を自動検索 | 上記の共通配置先を自動検索 |
+| OpenCode v2 | `skills` 設定から共通配置先を参照 | `skills` 設定から共通配置先を参照 |
 
 原本を `.chezmoitemplates/` に置くと、本文中の `{{ ... }}` やバイナリまでテンプレートとして解析される。このため原本は `home/.skills/` に置く。chezmoi は通常のドットファイル・ディレクトリを source state の配置対象から除外するが、`include` からは読み込める。原本をそのまま保持でき、除外ルールや生成処理の追加も不要。
 
-配置先は OS 共通なので、Skill に対する `.chezmoiignore` の条件追加は不要。`~/.config/opencode/skills/` と旧 `~/.codex/skills/` に複製しない。OpenCode v2 は同じ ID なら後から読んだ配置を優先し、共通配置では `.agents/skills` が `.claude/skills` より優先される。両者には同じ原本を展開する。
+配置先は OS 共通なので、Skill に対する `.chezmoiignore` の条件追加は不要。`~/.config/opencode/skills/` と旧 `~/.codex/skills/` に複製しない。OpenCode v2 は同じ ID なら後から読んだ配置を優先し、共通配置では `.agents/skills` が `.claude/skills` より優先される。両者には同じ原本を展開する。実機 v2 では `opencode.jsonc` の `skills: ["~/.agents/skills"]` で参照先を明示し、互換ディレクトリの自動検出に依存しない。追加の Skill コピーは作らない。
 
 読込先の根拠: [Codex](https://learn.chatgpt.com/docs/build-skills)、[Claude Code](https://code.claude.com/docs/en/skills)、[OpenCode v2](https://opencode.ai/v2/docs/skills)。Cowork / Claude のクラウドセッションはローカル配置を読まないため、アカウント同期 Skill とは別管理になる。
 
@@ -261,7 +261,7 @@ PowerShell では `"$HOME/.agents/skills"` / `"$HOME/.claude/skills"` を使う�
 
 プラグイン付属 Skill はプラグイン管理に任せ、原本へ重複コピーしない。特に `.claude-plugin/`、hooks、MCP 設定を共通 Skill として取り込むとツール固有の挙動まで追加されるため、Skill とプラグインの依存関係を先に確認する。ユーザー作成・出所不明・システム提供・アカウント同期・プロジェクト固有の Skill は独断で削除しない。
 
-今回のローカル調査と削除候補は [Skill 調査記録](docs/skill-inventory.md) を参照。Ponytail 5.1.0 の6つの Skill を共通原本として管理している。その他の Skill は自動採用しない。`.gitkeep` は chezmoi が無視するため、サンプル Skill は恒久配置しない。
+今回のローカル調査と削除候補は [Skill 調査記録](docs/skill-inventory.md) を参照。Ponytail 5.1.0 の6つの Skill と yomiyasu 1.0.6 を共通原本として管理している。その他の Skill は自動採用しない。`.gitkeep` は chezmoi が無視するため、サンプル Skill は恒久配置しない。
 
 検証: `python tests/check_skills.py` (Python / chezmoi が必要)。一時ディレクトリで原本・補助ファイルの展開、Windows / Ubuntu のパス、dry-run、管理外ファイルの保持を確認する。
 
@@ -281,14 +281,21 @@ PowerShell では `"$HOME/.agents/skills"` / `"$HOME/.claude/skills"` を使う�
 - DCP 圧縮は自動許可 (`dcp.jsonc` の `permission: allow`)。native compaction は無効 (`auto: false`。v2 で未対応の `prune` は指定しない)
 - DCP を止めるには plugin 配列から削除する
 - OpenCode v2 を使用。コマンドは `opencode` のまま、DCP 3.2.0 を利用する。Ponytail は下記の共通 Skill として配備する。モデルと権限は v2 が読み込める既存形式を維持する (参照: [v2 移行ガイド](https://opencode.ai/v2/docs/migrate-v1))。
-- Linux の導入: `curl -fsSL https://opencode.ai/v2/install | bash -s -- --version 2.0.24 --no-modify-path`。PATH は dotfiles で管理しているため installer では変更しない。
+- Windows の導入: `scoop bucket add versions` → 既存 v1 の設定をバックアップ → `scoop uninstall opencode` → `scoop install versions/opencode2`。実機では2.0.26を確認済み。コマンド名は `opencode`。Scoop の [opencode2 manifest](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) がバイナリとハッシュを管理する。
+- Linux の導入: `curl -fsSL https://opencode.ai/v2/install | bash -s -- --version 2.0.26 --no-modify-path`。PATH は dotfiles で管理しているため installer では変更しない。
 
 ## Ponytail
 
-Ponytail 5.1.0 の `ponytail` / `ponytail-review` / `ponytail-audit` / `ponytail-debt` / `ponytail-gain` / `ponytail-help` を `home/.skills/` で管理し、Codex・Claude Code に実ファイルとして配備する。OpenCode v2 は共通配置先を自動検索する。
+Ponytail 5.1.0 の `ponytail` / `ponytail-review` / `ponytail-audit` / `ponytail-debt` / `ponytail-gain` / `ponytail-help` を `home/.skills/` で管理し、Codex・Claude Code に実ファイルとして配備する。OpenCode v2 は `skills` 設定から共通配置先を参照する。
 
 Codex は `$ponytail`、Claude Code は `/ponytail`、OpenCode v2 は `@ponytail` で呼び出す。lite / full / ultra の指示は Skill 本文で管理する。
 
 プラグインは導入しない。hooks による自動注入、`defaultMode` 設定、`PONYTAIL_DEFAULT_MODE`、`opencode-full` ラッパーは廃止した。プラグインの runtime 機能は共通 Skill に含まれない。
 
 原本の編集と反映は「共通 Agent Skills」を参照。更新は upstream の version / commit と差分を確認して原本へ取り込み、ライセンスと必要な補助資料も保持する。取り込み元とローカル変更は [Ponytail の出所](docs/ponytail-source.md) に記録する。
+
+## yomiyasu
+
+1.0.6 の本文・Python scripts・references・assets・LICENSE を `home/.skills/yomiyasu/` で管理する。Codex は `$yomiyasu`、Claude Code は `/yomiyasu`、OpenCode v2 は `@yomiyasu` で呼び出す。
+
+Claude のプラグインと marketplace は解除済み。更新は原本への取り込みと chezmoi apply で行う。scripts は Python 3 で実行する。取り込み元の commit と補助ファイルの範囲は [yomiyasu の出所](docs/yomiyasu-source.md) を参照。

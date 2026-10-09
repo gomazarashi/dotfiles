@@ -12,3 +12,5 @@
 プラグイン管理からの移行に伴い、Codex の Ponytail プラグインと marketplace、OpenCode の Ponytail plugin 設定、dotfiles の runtime 設定・起動ラッパーを整理する。バックアップは Git 管理外の `.codex/skill-backups/ponytail-migration-20261010/` に保存する。
 
 移行は完了済み。Codex / OpenCode の共通 Skill 認識を実測した。OpenCode 実機は1.18.34であり、v2の実機確認とUbuntu実機確認、Claudeのセッション内確認は未実施。
+
+その後、OpenCodeをv2.0.26に更新し、6つのPonytail Skillとyomiyasuの共通配置からの認識を実測した。参照先はopencode.jsoncのskills配列で明示する。
