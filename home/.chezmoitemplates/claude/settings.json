@@ -1,5 +1,4 @@
 {
-  "model": "opus",
   "enabledPlugins": {
     "drawio@drawio": true
   },
@@ -11,7 +10,6 @@
       }
     }
   },
-  "effortLevel": "high",
   "modelSettings": {
     "claude-sonnet-5": {
       "effortLevel": "xhigh"
@@ -20,7 +18,6 @@
       "effortLevel": "high"
     }
   },
-  "theme": "dark",
   "autoCompactEnabled": true,
 {{- /* autoMode の environment は Linux 機で生成された内容のため Linux 限定で配備する */}}
 {{- if eq .chezmoi.os "linux" }}

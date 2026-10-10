@@ -1,0 +1,10 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /* defaults.json は未設定のときだけ入れる初期値。/model や /config での変更を残す。 */ -}}
+{{- /* settings.json は apply のたびに上書きする。それ以外のキーは Claude Code が書いた内容を保持する。 */ -}}
+{{- $current := dict -}}
+{{- if ne (trim .chezmoi.stdin) "" -}}
+{{- $current = fromJson .chezmoi.stdin -}}
+{{- end -}}
+{{- $withDefaults := merge $current (includeTemplate "claude/defaults.json" . | fromJson) -}}
+{{- $merged := mergeOverwrite $withDefaults (includeTemplate "claude/settings.json" . | fromJson) -}}
+{{ toPrettyJson $merged }}
