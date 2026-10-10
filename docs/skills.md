@@ -2,10 +2,8 @@
 
 Skill は dotfiles では管理せず、[`npx skills`](https://github.com/vercel-labs/skills) で各マシンに直接導入する。このファイルは使用中の Skill のメモ。
 
-| 取得元 | Skill |
-|---|---|
-| [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | `ponytail`、`ponytail-review`、`ponytail-audit`、`ponytail-debt`、`ponytail-gain`、`ponytail-help` |
-| [nanaism/yomiyasu](https://github.com/nanaism/yomiyasu) | `yomiyasu` |
+- [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail): `ponytail`、`ponytail-review`、`ponytail-audit`、`ponytail-debt`、`ponytail-gain`、`ponytail-help`
+- [nanaism/yomiyasu](https://github.com/nanaism/yomiyasu): `yomiyasu`
 
 ## 導入
 

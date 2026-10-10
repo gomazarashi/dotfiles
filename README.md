@@ -29,14 +29,11 @@ chezmoi cd               # source ディレクトリでシェルを開く
 
 `~/.dotfiles/home/` 以下のファイル名が配置先を表す。
 
-| source の名前の例 | 配置先 (target) | 意味 |
-|---|---|---|
-| `dot_bashrc` | `~/.bashrc` | `dot_` は先頭の `.` |
-| `dot_config/opencode/opencode.jsonc` | `~/.config/opencode/opencode.jsonc` | ディレクトリ構造がそのまま対応する |
-| `AppData/Roaming/Zed/settings.json.tmpl` | `%APPDATA%\Zed\settings.json` | Windows のみ |
-| `readonly_Documents/PowerShell/Microsoft.PowerShell_profile.ps1` | `$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` | Windows のみ |
-| `dot_codex/modify_private_config.toml` | `~/.codex/config.toml` | 特殊 (下の「Codex」を参照) |
-
+- `dot_bashrc` → `~/.bashrc` (`dot_` は先頭の `.`)
+- `dot_config/opencode/opencode.jsonc` → `~/.config/opencode/opencode.jsonc` (ディレクトリ構造はそのまま対応する)
+- `AppData/Roaming/Zed/settings.json.tmpl` → `%APPDATA%\Zed\settings.json` (Windows のみ)
+- `readonly_Documents/PowerShell/Microsoft.PowerShell_profile.ps1` → `$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` (Windows のみ)
+- `dot_codex/modify_private_config.toml` → `~/.codex/config.toml` (特殊。下の「Codex」を参照)
 - `.tmpl` が付いたファイルは**テンプレート**。`{{ ... }}` が展開されてから配置される
 - 同じ内容を複数の配置先で使う場合は `.chezmoitemplates/` に 1 つだけ置き、各ファイルから `includeTemplate` で参照する (Zed がこの方式)
 - **新しいファイルを管理対象に追加する**: `chezmoi add ~/.config/foo/bar.conf` を実行すると `home/dot_config/foo/bar.conf` が作られる。OS 専用のファイルなら `.chezmoiignore` に条件を追記して他の OS では配置しないようにする
@@ -78,14 +75,12 @@ chezmoi update           # source repo の git pull + chezmoi apply
 
 ### 状態の確認に使うコマンド
 
-| コマンド | 意味 |
-|---|---|
-| `chezmoi doctor` | 環境と設定の診断 |
-| `chezmoi managed` | 管理対象の target 一覧 |
-| `chezmoi ignored` | この OS では配置しない target 一覧 |
-| `chezmoi status` | 差分の 1 行サマリ |
-| `chezmoi diff` | 差分の中身 |
-| `chezmoi apply --dry-run --verbose` | 適用内容のプレビュー (変更しない) |
+- `chezmoi doctor`: 環境と設定の診断
+- `chezmoi managed`: 管理対象の target 一覧
+- `chezmoi ignored`: この OS では配置しない target 一覧
+- `chezmoi status`: 差分の 1 行サマリ
+- `chezmoi diff`: 差分の中身
+- `chezmoi apply --dry-run --verbose`: 適用内容のプレビュー (変更しない)
 
 ## 新しいマシンのセットアップ
 
@@ -119,48 +114,13 @@ chezmoi diff
 chezmoi apply
 ```
 
-## 配置対応表
+## OS 別の配置
 
-`home/` 以下のファイルと配置先の対応。`dot_` は先頭の `.` を表す。
-
-### Ubuntu
-
-| source (`home/` 以下) | target |
-|---|---|
-| `dot_codex/modify_private_config.toml` + `.chezmoitemplates/codex/config.toml` | `~/.codex/config.toml` |
-| `dot_codex/AGENTS.md` | `~/.codex/AGENTS.md` |
-| `dot_config/opencode/opencode.jsonc` | `~/.config/opencode/opencode.jsonc` |
-| `dot_config/opencode/dcp.jsonc` | `~/.config/opencode/dcp.jsonc` |
-| `dot_config/opencode/AGENTS.md` | `~/.config/opencode/AGENTS.md` |
-| `dot_config/zed/settings.json.tmpl` | `~/.config/zed/settings.json` |
-| `dot_gitconfig.tmpl` | `~/.gitconfig` |
-| `private_dot_gitconfig-alternate.tmpl` | `~/.gitconfig-alternate` (ローカル設定が有効な場合のみ) |
-| `dot_config/git/attributes` | `~/.config/git/attributes` |
-| `dot_config/git/ignore` | `~/.config/git/ignore` |
-| `dot_bashrc` | `~/.bashrc` |
-| `dot_profile` | `~/.profile` |
-| `dot_config/shell/path.sh` | `~/.config/shell/path.sh` (PATH 設定。`.bashrc` / `.profile` の両方から読み込む) |
-| `dot_config/tmux/tmux.conf` | `~/.config/tmux/tmux.conf` |
-| `dot_config/ghostty/config` | `~/.config/ghostty/config` |
-| `dot_config/nix/nix.conf` | `~/.config/nix/nix.conf` |
-
-### Windows
-
-| source (`home/` 以下) | target |
-|---|---|
-| `dot_codex/modify_private_config.toml` + `.chezmoitemplates/codex/config.toml` | `%USERPROFILE%\.codex\config.toml` |
-| `dot_codex/AGENTS.md` | `%USERPROFILE%\.codex\AGENTS.md` |
-| `dot_config/opencode/opencode.jsonc` | `%USERPROFILE%\.config\opencode\opencode.jsonc` |
-| `dot_config/opencode/dcp.jsonc` | `%USERPROFILE%\.config\opencode\dcp.jsonc` |
-| `dot_config/opencode/AGENTS.md` | `%USERPROFILE%\.config\opencode\AGENTS.md` |
-| `AppData/Roaming/Zed/settings.json.tmpl` | `%APPDATA%\Zed\settings.json` |
-| `readonly_Documents/PowerShell/Microsoft.PowerShell_profile.ps1` | `%USERPROFILE%\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` |
-| `dot_gitconfig.tmpl` | `%USERPROFILE%\.gitconfig` |
-| `private_dot_gitconfig-alternate.tmpl` | `%USERPROFILE%\.gitconfig-alternate` (ローカル設定が有効な場合のみ) |
-| `dot_config/git/attributes` | `%USERPROFILE%\.config\git\attributes` |
-| `dot_config/git/ignore` | `%USERPROFILE%\.config\git\ignore` |
-
-OS 専用ファイルは `.chezmoiignore` の template 条件で制御する (Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,shell,tmux,zed}`、Windows 専用: `AppData/**` / `Documents/**`)。
+- 配置先の一覧は `chezmoi managed` で確認する。OS 専用ファイルは `.chezmoiignore` の template 条件で制御する。
+- Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,shell,tmux,zed}`
+- Windows 専用: `AppData/**` / `Documents/**` (Zed は `%APPDATA%\Zed\settings.json`)
+- `.config/shell/path.sh` は PATH 設定で、`.bashrc` / `.profile` の両方から読み込む。
+- `private_dot_gitconfig-alternate.tmpl` はローカル設定が有効な場合のみ配置する。
 
 ## ディレクトリ別の Git アカウント
 
@@ -185,10 +145,9 @@ Windows のパスは `C:/path/to/repositories` のように `/` を使うか、T
 
 テンプレートの切り替えは `python tests/check_alternate_git.py` で検証できる (Python / chezmoi / Git が必要)。検証には仮の値と一時ディレクトリだけを使う。
 
-
 ## 共通 Agent Skills
 
-Codex / Claude Code / OpenCode v2 の Skill は dotfiles では管理せず、[`npx skills`](https://github.com/vercel-labs/skills) で各マシンに直接導入する。使用中の Skill と導入・更新のコマンドは [docs/skills.md](docs/skills.md) にメモしている。OpenCode v2 は `opencode.jsonc` の `skills` 設定で `~/.agents/skills` を参照する。
+Skill は dotfiles では管理せず、`npx skills` で各マシンに直接導入する。使用中の Skill と導入・更新のコマンドは [docs/skills.md](docs/skills.md) を参照。OpenCode v2 は `opencode.jsonc` の `skills` 設定で `~/.agents/skills` を参照する。
 
 ## Codex
 
@@ -213,6 +172,6 @@ Codex / Claude Code / OpenCode v2 の Skill は dotfiles では管理せず、[`
 - 既定モデル: `opencode-go/deepseek-v4.1-flash`
 - DCP 圧縮は自動許可 (`dcp.jsonc` の `permission: allow`)。native compaction は無効 (`auto: false`。v2 で未対応の `prune` は指定しない)
 - DCP を止めるには plugin 配列から削除する
-- OpenCode v2 を使用。コマンドは `opencode` のまま、DCP 3.2.0 を利用する。モデルと権限は v2 が読み込める既存形式を維持する (参照: [v2 移行ガイド](https://opencode.ai/v2/docs/migrate-v1))。
-- Windows の導入: `scoop bucket add versions` → 既存 v1 の設定をバックアップ → `scoop uninstall opencode` → `scoop install versions/opencode2`。実機では2.0.26を確認済み。コマンド名は `opencode`。Scoop の [opencode2 manifest](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) がバイナリとハッシュを管理する。
+- OpenCode v2 (コマンドは `opencode`) と DCP 3.2.0 を使用する。モデルと権限は v2 が読み込める既存形式を維持する (参照: [v2 移行ガイド](https://opencode.ai/v2/docs/migrate-v1))
+- Windows の導入: `scoop bucket add versions` → 既存 v1 の設定をバックアップ → `scoop uninstall opencode` → `scoop install versions/opencode2`。実機では 2.0.26 を確認済み。Scoop の [opencode2 manifest](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) がバイナリとハッシュを管理する。
 - Linux の導入: `curl -fsSL https://opencode.ai/v2/install | bash -s -- --version 2.0.26 --no-modify-path`。PATH は dotfiles で管理しているため installer では変更しない。
