@@ -1,0 +1,10 @@
+{{- if ne .chezmoi.os "windows" -}}
+#!/bin/sh
+# Agent Skills を npx skills で導入する (Claude Code と Codex。OpenCode は ~/.agents/skills を参照)。
+# 取得元の一覧 (.chezmoidata/skills.yaml) が変わったときだけ実行される。
+# skills.yaml hash: {{ include ".chezmoidata/skills.yaml" | sha256sum }}
+set -eu
+{{ range .skills -}}
+npx -y skills add {{ .repo }} -g -a claude-code -a codex --copy -y --skill '*'
+{{ end -}}
+{{- end -}}

@@ -188,82 +188,44 @@ Windows のパスは `C:/path/to/repositories` のように `/` を使うか、T
 
 ## 共通 Agent Skills
 
-Codex / Claude Code / OpenCode v2 のローカル Skill は次の構成で管理する。原本の内容は1か所だけに置き、chezmoi が2つの配置先に実ファイルとして展開する。symlink / hardlink、生成スクリプト、追加のパッケージは使わない。
+Codex / Claude Code / OpenCode v2 のグローバル Skill は [`npx skills`](https://github.com/vercel-labs/skills) で管理する。Skill の本文は dotfiles に置かない。取得元の一覧だけを `home/.chezmoidata/skills.yaml` に持ち、`chezmoi apply` 時に `home/.chezmoiscripts/` のスクリプトが導入する (Windows は `.ps1`、Ubuntu は `.sh`)。
 
-```text
-home/
-├── .skills/<skill-name>/                 # 原本
-│   ├── SKILL.md
-│   ├── scripts/
-│   ├── references/
-│   └── assets/
-├── dot_agents/skills/<skill-name>/        # 原本を参照する .tmpl
-└── dot_claude/skills/<skill-name>/        # 同じ原本を参照する .tmpl
+```yaml
+skills:
+  - repo: DietrichGebert/ponytail   # ponytail / -review / -audit / -debt / -gain / -help
+  - repo: nanaism/yomiyasu
 ```
 
-| ツール | Ubuntu の配置先 | Windows の配置先 |
+導入は `-g -a claude-code -a codex --copy` で行う。実ファイルを `~/.claude/skills/` と `~/.agents/skills/` に置き、Windows でも symlink 権限を要しない。OpenCode v2 は `opencode.jsonc` の `skills: ["~/.agents/skills"]` で `~/.agents/skills` を参照するため、`-a opencode` は付けない (`~/.config/opencode/skills/` に入れると二重に見える)。各マシンの導入状態は `~/.agents/.skill-lock.json` に記録され、Git には入らない。
+
+| ツール | 配置先 | 呼び出し |
 |---|---|---|
-| Codex | `~/.agents/skills/` | `%USERPROFILE%\.agents\skills\` |
-| Claude Code | `~/.claude/skills/` | `%USERPROFILE%\.claude\skills\` |
-| OpenCode v2 | `skills` 設定から共通配置先を参照 | `skills` 設定から共通配置先を参照 |
-
-原本を `.chezmoitemplates/` に置くと、本文中の `{{ ... }}` やバイナリまでテンプレートとして解析される。このため原本は `home/.skills/` に置く。chezmoi は通常のドットファイル・ディレクトリを source state の配置対象から除外するが、`include` からは読み込める。原本をそのまま保持でき、除外ルールや生成処理の追加も不要。
-
-配置先は OS 共通なので、Skill に対する `.chezmoiignore` の条件追加は不要。`~/.config/opencode/skills/` と旧 `~/.codex/skills/` に複製しない。OpenCode v2 は同じ ID なら後から読んだ配置を優先し、共通配置では `.agents/skills` が `.claude/skills` より優先される。両者には同じ原本を展開する。実機 v2 では `opencode.jsonc` の `skills: ["~/.agents/skills"]` で参照先を明示し、互換ディレクトリの自動検出に依存しない。追加の Skill コピーは作らない。
-
-読込先の根拠: [Codex](https://learn.chatgpt.com/docs/build-skills)、[Claude Code](https://code.claude.com/docs/en/skills)、[OpenCode v2](https://opencode.ai/v2/docs/skills)。Cowork / Claude のクラウドセッションはローカル配置を読まないため、アカウント同期 Skill とは別管理になる。
+| Codex | `~/.agents/skills/` | `$ponytail`、`$yomiyasu` |
+| Claude Code | `~/.claude/skills/` | `/ponytail`、`/yomiyasu` |
+| OpenCode v2 | `~/.agents/skills/` を `skills` 設定で参照 | `@ponytail`、`@yomiyasu` |
 
 ### Skill の追加
 
-1. `home/.skills/<skill-name>/SKILL.md` を作る。Skill 名は小文字英数字とハイフンを使い、frontmatter に `name` と `description` を書く。`synced` / `anthropic-skills` は Claude の予約名なので使わない。
-2. 次の2ファイルを作り、**両方に同じ1行**を書く。
+`skills.yaml` に取得元を1行足して `chezmoi apply` する。一覧が変わったときだけスクリプトが走る。リポジトリ内の Skill は全件導入する (`--skill '*'`)。一部だけ必要な場合は、スクリプトの `--skill` を調整する。
 
-```text
-home/dot_agents/skills/<skill-name>/SKILL.md.tmpl
-home/dot_claude/skills/<skill-name>/SKILL.md.tmpl
-```
-
-```gotemplate
-{{- include ".skills/<skill-name>/SKILL.md" -}}
-```
-
-`<skill-name>` は実際の名前に置き換える。原本はテンプレートとして評価せず、[chezmoi の include](https://www.chezmoi.io/reference/templates/functions/include/) でそのまま読み込む。Skill 本文中の `{{ ... }}` やバイナリ assets も保持する。参照テンプレートの前後に説明文を足さない。
-
-補助ファイルも同じ方法で、各配置先に相対パスを維持した参照ファイルを1つずつ追加する。例: 原本の `references/guide.md` に対して、両配置先の `references/guide.md.tmpl` に次の1行を書く。
-
-```gotemplate
-{{- include ".skills/<skill-name>/references/guide.md" -}}
-```
-
-原本ファイルごとに2つの参照が必要になるが、本文の重複や同期処理を持たず、通常の chezmoi だけで管理できる。内容だけの更新では参照を変更する必要はない。
-
-空ファイルを保持する場合は参照ファイル名に `empty_`、Ubuntu で直接実行するスクリプトは `executable_` を付ける。例: `scripts/executable_run.sh.tmpl` → `scripts/run.sh`。Windows では実行ビットを使わず、必要な interpreter を明示して実行する。補助ファイル名が `dot_` / `run_` などの chezmoi 属性で始まる場合は `literal_`、元の拡張子が `.tmpl` の場合は `.literal.tmpl` でエスケープする ([属性一覧](https://www.chezmoi.io/reference/source-state-attributes/))。Windows の予約名や大文字小文字だけが異なるファイル名は避ける。
-
-### 編集・適用・削除
-
-編集するのは `home/.skills/<skill-name>/` の原本。`chezmoi edit` で配置用ファイルを開くと参照テンプレートが開くため、Skill の本文はリポジトリから直接編集する。
-
-追加・編集後は、Skill の配置先だけに絞って確認・適用できる。
+### 更新
 
 ```sh
-chezmoi diff ~/.agents/skills ~/.claude/skills
-chezmoi apply --dry-run --verbose ~/.agents/skills ~/.claude/skills
-chezmoi apply ~/.agents/skills ~/.claude/skills
+npx skills update -g -y   # 全 Skill を upstream の最新へ
+npx skills ls -g          # 導入状況の確認
 ```
 
-PowerShell では `"$HOME/.agents/skills"` / `"$HOME/.claude/skills"` を使う。既存の同名ファイルと差分がある場合は、適用前にバックアップして上書き内容を確認する。適用後は各ツールの新しいセッションで Skill 一覧を確認する。Codex / Claude Code は `/skills`、OpenCode v2 は入力欄で `@skill-id` を指定して読み込みを確認する。
+更新はハッシュの差分で判定される。導入を指定バージョンに固定したい場合は、取得元にタグや commit を指定する。導入前に内容を確認するときは `npx skills add <repo> -l` で Skill 名を見る。Skill は agent の権限で動くため、新しい取得元を足すときは内容を確認する。
 
-削除するときは原本と両配置先の参照ファイルを削除する。**source から削除しただけでは、すでに配置した target は削除されない。** 各マシンで削除する具体的な Skill / 補助ファイルのパスを確認し、バックアップ・承認後にその target だけを手動で削除する。`exact_` や Skill ルート全体の再帰削除は使わない。アカウント同期の `synced/`、システム Skill、管理外 Skill は維持する。
+### 削除
 
-### サードパーティ Skill
+`skills.yaml` から消しただけでは各マシンの配置は消えない。`npx skills remove -g <name>` で削除する。
 
-採用する Skill の必要なファイルとライセンスを原本に取り込み、出所 URL・version / commit・ローカル変更を記録する。独立 installer による配置と chezmoi の二重管理は避ける。既存 Skill を移行するときは補助ファイルを含めて比較し、承認を得てから配置を変更する。
+### 管理外
 
-プラグイン付属 Skill はプラグイン管理に任せ、原本へ重複コピーしない。特に `.claude-plugin/`、hooks、MCP 設定を共通 Skill として取り込むとツール固有の挙動まで追加されるため、Skill とプラグインの依存関係を先に確認する。ユーザー作成・出所不明・システム提供・アカウント同期・プロジェクト固有の Skill は独断で削除しない。
+`~/.claude/skills/synced/` (アカウント同期)、`~/.codex/skills/.system/` (Codex 標準)、プラグイン同梱の Skill (drawio など) はこの仕組みの対象外。Cowork / Claude のクラウドセッションはローカル配置を読まない。
 
-今回のローカル調査と削除候補は [Skill 調査記録](docs/skill-inventory.md) を参照。Ponytail 5.1.0 の6つの Skill と yomiyasu 1.0.6 を共通原本として管理している。その他の Skill は自動採用しない。`.gitkeep` は chezmoi が無視するため、サンプル Skill は恒久配置しない。
-
-検証: `python tests/check_skills.py` (Python / chezmoi が必要)。一時ディレクトリで原本・補助ファイルの展開、Windows / Ubuntu のパス、dry-run、管理外ファイルの保持を確認する。
+配置先の根拠: [Codex](https://learn.chatgpt.com/docs/build-skills)、[Claude Code](https://code.claude.com/docs/en/skills)、[OpenCode v2](https://opencode.ai/v2/docs/skills)。
 
 ## Codex
 
@@ -280,22 +242,6 @@ PowerShell では `"$HOME/.agents/skills"` / `"$HOME/.claude/skills"` を使う�
 - 既定モデル: `opencode-go/deepseek-v4.1-flash`
 - DCP 圧縮は自動許可 (`dcp.jsonc` の `permission: allow`)。native compaction は無効 (`auto: false`。v2 で未対応の `prune` は指定しない)
 - DCP を止めるには plugin 配列から削除する
-- OpenCode v2 を使用。コマンドは `opencode` のまま、DCP 3.2.0 を利用する。Ponytail は下記の共通 Skill として配備する。モデルと権限は v2 が読み込める既存形式を維持する (参照: [v2 移行ガイド](https://opencode.ai/v2/docs/migrate-v1))。
+- OpenCode v2 を使用。コマンドは `opencode` のまま、DCP 3.2.0 を利用する。Ponytail などの Skill は「共通 Agent Skills」で導入する。モデルと権限は v2 が読み込める既存形式を維持する (参照: [v2 移行ガイド](https://opencode.ai/v2/docs/migrate-v1))。
 - Windows の導入: `scoop bucket add versions` → 既存 v1 の設定をバックアップ → `scoop uninstall opencode` → `scoop install versions/opencode2`。実機では2.0.26を確認済み。コマンド名は `opencode`。Scoop の [opencode2 manifest](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) がバイナリとハッシュを管理する。
 - Linux の導入: `curl -fsSL https://opencode.ai/v2/install | bash -s -- --version 2.0.26 --no-modify-path`。PATH は dotfiles で管理しているため installer では変更しない。
-
-## Ponytail
-
-Ponytail 5.1.0 の `ponytail` / `ponytail-review` / `ponytail-audit` / `ponytail-debt` / `ponytail-gain` / `ponytail-help` を `home/.skills/` で管理し、Codex・Claude Code に実ファイルとして配備する。OpenCode v2 は `skills` 設定から共通配置先を参照する。
-
-Codex は `$ponytail`、Claude Code は `/ponytail`、OpenCode v2 は `@ponytail` で呼び出す。lite / full / ultra の指示は Skill 本文で管理する。
-
-プラグインは導入しない。hooks による自動注入、`defaultMode` 設定、`PONYTAIL_DEFAULT_MODE`、`opencode-full` ラッパーは廃止した。プラグインの runtime 機能は共通 Skill に含まれない。
-
-原本の編集と反映は「共通 Agent Skills」を参照。更新は upstream の version / commit と差分を確認して原本へ取り込み、ライセンスと必要な補助資料も保持する。取り込み元とローカル変更は [Ponytail の出所](docs/ponytail-source.md) に記録する。
-
-## yomiyasu
-
-1.0.6 の本文・Python scripts・references・assets・LICENSE を `home/.skills/yomiyasu/` で管理する。Codex は `$yomiyasu`、Claude Code は `/yomiyasu`、OpenCode v2 は `@yomiyasu` で呼び出す。
-
-Claude のプラグインと marketplace は解除済み。更新は原本への取り込みと chezmoi apply で行う。scripts は Python 3 で実行する。取り込み元の commit と補助ファイルの範囲は [yomiyasu の出所](docs/yomiyasu-source.md) を参照。
