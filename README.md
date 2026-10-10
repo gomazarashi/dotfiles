@@ -188,44 +188,7 @@ Windows のパスは `C:/path/to/repositories` のように `/` を使うか、T
 
 ## 共通 Agent Skills
 
-Codex / Claude Code / OpenCode v2 のグローバル Skill は [`npx skills`](https://github.com/vercel-labs/skills) で管理する。Skill の本文は dotfiles に置かない。取得元の一覧だけを `home/.chezmoidata/skills.yaml` に持ち、`chezmoi apply` 時に `home/.chezmoiscripts/` のスクリプトが導入する (Windows は `.ps1`、Ubuntu は `.sh`)。
-
-```yaml
-skills:
-  - repo: DietrichGebert/ponytail   # ponytail / -review / -audit / -debt / -gain / -help
-  - repo: nanaism/yomiyasu
-```
-
-導入は `-g -a claude-code -a codex --copy` で行う。実ファイルを `~/.claude/skills/` と `~/.agents/skills/` に置き、Windows でも symlink 権限を要しない。OpenCode v2 は `opencode.jsonc` の `skills: ["~/.agents/skills"]` で `~/.agents/skills` を参照するため、`-a opencode` は付けない (`~/.config/opencode/skills/` に入れると二重に見える)。各マシンの導入状態は `~/.agents/.skill-lock.json` に記録され、Git には入らない。
-
-| ツール | 配置先 | 呼び出し |
-|---|---|---|
-| Codex | `~/.agents/skills/` | `$ponytail`、`$yomiyasu` |
-| Claude Code | `~/.claude/skills/` | `/ponytail`、`/yomiyasu` |
-| OpenCode v2 | `~/.agents/skills/` を `skills` 設定で参照 | `@ponytail`、`@yomiyasu` |
-
-### Skill の追加
-
-`skills.yaml` に取得元を1行足して `chezmoi apply` する。一覧が変わったときだけスクリプトが走る。リポジトリ内の Skill は全件導入する (`--skill '*'`)。一部だけ必要な場合は、スクリプトの `--skill` を調整する。
-
-### 更新
-
-```sh
-npx skills update -g -y   # 全 Skill を upstream の最新へ
-npx skills ls -g          # 導入状況の確認
-```
-
-更新はハッシュの差分で判定される。導入を指定バージョンに固定したい場合は、取得元にタグや commit を指定する。導入前に内容を確認するときは `npx skills add <repo> -l` で Skill 名を見る。Skill は agent の権限で動くため、新しい取得元を足すときは内容を確認する。
-
-### 削除
-
-`skills.yaml` から消しただけでは各マシンの配置は消えない。`npx skills remove -g <name>` で削除する。
-
-### 管理外
-
-`~/.claude/skills/synced/` (アカウント同期)、`~/.codex/skills/.system/` (Codex 標準)、プラグイン同梱の Skill (drawio など) はこの仕組みの対象外。Cowork / Claude のクラウドセッションはローカル配置を読まない。
-
-配置先の根拠: [Codex](https://learn.chatgpt.com/docs/build-skills)、[Claude Code](https://code.claude.com/docs/en/skills)、[OpenCode v2](https://opencode.ai/v2/docs/skills)。
+Codex / Claude Code / OpenCode v2 の Skill は dotfiles では管理せず、[`npx skills`](https://github.com/vercel-labs/skills) で各マシンに直接導入する。使用中の Skill と導入・更新のコマンドは [docs/skills.md](docs/skills.md) にメモしている。OpenCode v2 は `opencode.jsonc` の `skills` 設定で `~/.agents/skills` を参照する。
 
 ## Codex
 

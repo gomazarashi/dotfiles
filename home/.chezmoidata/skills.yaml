@@ -1,5 +1,0 @@
-# npx skills で導入する共通 Agent Skill の取得元。
-# 変更すると run_onchange スクリプトが再実行される。
-skills:
-  - repo: DietrichGebert/ponytail
-  - repo: nanaism/yomiyasu
