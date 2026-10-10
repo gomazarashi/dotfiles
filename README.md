@@ -205,6 +205,6 @@ Codex / Claude Code / OpenCode v2 の Skill は dotfiles では管理せず、[`
 - 既定モデル: `opencode-go/deepseek-v4.1-flash`
 - DCP 圧縮は自動許可 (`dcp.jsonc` の `permission: allow`)。native compaction は無効 (`auto: false`。v2 で未対応の `prune` は指定しない)
 - DCP を止めるには plugin 配列から削除する
-- OpenCode v2 を使用。コマンドは `opencode` のまま、DCP 3.2.0 を利用する。Ponytail などの Skill は「共通 Agent Skills」で導入する。モデルと権限は v2 が読み込める既存形式を維持する (参照: [v2 移行ガイド](https://opencode.ai/v2/docs/migrate-v1))。
+- OpenCode v2 を使用。コマンドは `opencode` のまま、DCP 3.2.0 を利用する。モデルと権限は v2 が読み込める既存形式を維持する (参照: [v2 移行ガイド](https://opencode.ai/v2/docs/migrate-v1))。
 - Windows の導入: `scoop bucket add versions` → 既存 v1 の設定をバックアップ → `scoop uninstall opencode` → `scoop install versions/opencode2`。実機では2.0.26を確認済み。コマンド名は `opencode`。Scoop の [opencode2 manifest](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) がバイナリとハッシュを管理する。
 - Linux の導入: `curl -fsSL https://opencode.ai/v2/install | bash -s -- --version 2.0.26 --no-modify-path`。PATH は dotfiles で管理しているため installer では変更しない。

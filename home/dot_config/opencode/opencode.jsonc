@@ -24,7 +24,7 @@
     }
   },
 
-  // DCP (Dynamic Context Pruning) plugin。Ponytail は共通 Skill として配備する。
+  // DCP (Dynamic Context Pruning) plugin。
   // version は pin し、upgrade は意図的に行う (@latest は使わない)。
   "plugin": [
     "@tarquinen/opencode-dcp@3.2.0"
