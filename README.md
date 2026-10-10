@@ -45,7 +45,7 @@ chezmoi diff
 chezmoi apply --dry-run --verbose
 ```
 
-確認するポイント:
+確認するポイントは次のとおり。
 
 - Codex が自動生成した state (`[projects.*]` の trust など) が消えていないか
 - 意図しないファイルの削除がないか
@@ -141,7 +141,7 @@ Windows のパスは `C:/path/to/repositories` のように `/` を使うか、T
 
 鍵を別アカウントに登録し、対象リポジトリの GitHub remote に SSH URL を使用する。HTTPS URL では `core.sshCommand` による鍵の切り替えは働かない。リポジトリ固有の Git 設定や環境変数による上書きは、この設定より優先される。
 
-適用前には `chezmoi diff` と `chezmoi apply --dry-run --verbose` を確認する。これらの出力にはローカルの実値が含まれるため公開しない。今回のファイルだけを適用する場合は `chezmoi apply ~/.gitconfig ~/.gitconfig-alternate` を使う。無効化後も既存の alternate ファイルは残るが、通常設定からは読み込まれない。
+適用前には `chezmoi diff` と `chezmoi apply --dry-run --verbose` を確認する。これらの出力にはローカルの実値が含まれるため公開しない。この設定のファイルだけを適用する場合は `chezmoi apply ~/.gitconfig ~/.gitconfig-alternate` を使う。無効化後も既存の alternate ファイルは残るが、通常設定からは読み込まれない。
 
 テンプレートの切り替えは `python tests/check_alternate_git.py` で検証できる (Python / chezmoi / Git が必要)。検証には仮の値と一時ディレクトリだけを使う。
 
@@ -173,5 +173,5 @@ Skill は dotfiles では管理せず、`npx skills` で各マシンに直接導
 - DCP 圧縮は自動許可 (`dcp.jsonc` の `permission: allow`)。native compaction は無効 (`auto: false`。v2 で未対応の `prune` は指定しない)
 - DCP を止めるには plugin 配列から削除する
 - OpenCode v2 (コマンドは `opencode`) と DCP 3.2.0 を使用する。モデルと権限は v2 が読み込める既存形式を維持する (参照: [v2 移行ガイド](https://opencode.ai/v2/docs/migrate-v1))
-- Windows の導入: `scoop bucket add versions` → 既存 v1 の設定をバックアップ → `scoop uninstall opencode` → `scoop install versions/opencode2`。実機では 2.0.26 を確認済み。Scoop の [opencode2 manifest](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) がバイナリとハッシュを管理する。
+- Windows の導入: `scoop bucket add versions` → `scoop install versions/opencode2`。v1 が入っている場合は、設定をバックアップして `scoop uninstall opencode` してから入れる。Scoop の [opencode2 manifest](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) がバイナリとハッシュを管理する。
 - Linux の導入: `curl -fsSL https://opencode.ai/v2/install | bash -s -- --version 2.0.26 --no-modify-path`。PATH は dotfiles で管理しているため installer では変更しない。
