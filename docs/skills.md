@@ -12,7 +12,7 @@ npx skills add <owner/repo> -g -a claude-code -a codex --copy -y --skill '*'
 ```
 
 - 配置先は `~/.claude/skills/` (Claude Code) と `~/.agents/skills/` (Codex)。
-- OpenCode v2 は `opencode.jsonc` の `skills: ["~/.agents/skills"]` で `~/.agents/skills` を参照する。`-a opencode` は付けない (二重に見える)。
+- OpenCode v2 は両配置先を[自動検出](https://opencode.ai/v2/docs/skills)し、同じ ID は `~/.agents/skills/` を優先して一つにまとめる。`skills` 配列と `-a opencode` は不要。
 - `--copy` は実ファイルで置く指定。Windows で symlink 権限を要しない。
 - 取得元を足す前に `npx skills add <owner/repo> -l` で内容を確認する。
 

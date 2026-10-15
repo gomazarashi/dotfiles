@@ -1,6 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/Opencode-DCP/opencode-dynamic-context-pruning/master/dcp.schema.json",
-  // 自動 update はしない。upgrade は opencode.jsonc の pin を上げて行う。
+  "$schema": "https://raw.githubusercontent.com/Opencode-DCP/opencode-dynamic-context-pruning/v3.2.0/dcp.schema.json",
+  // 更新時は opencode.jsonc のバージョンを上げる。
   "autoUpdate": false,
   // true にすると ~/.config/opencode/logs/dcp/ へ log 出力。
   "debug": false,
@@ -17,15 +17,12 @@
   ],
   "compress": {
     "mode": "range",
-    // 段階的導入の確認期間を終え、圧縮を自動許可する。
-    // ask のままだと著者不在の長時間セッションでコンテキストが埋まった時に
-    // 応答者がおらず停止するため。
+    // 無人セッションを確認待ちで止めない。
     "permission": "allow",
-    // モデルのコンテキスト量に対する割合で指定（1M級共通設定）。
+    // コンテキスト上限に対する割合。
     "minContextLimit": "35%",
     "maxContextLimit": "60%",
-    // ユーザーメッセージは圧縮せず原文のまま保護する。
-    // 注意: 大きく paste した prompt は圧縮されなくなる。
+    // 大きく貼り付けた内容も原文のまま残す。
     "protectUserMessages": true
   },
   "strategies": {

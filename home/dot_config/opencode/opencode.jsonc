@@ -1,22 +1,16 @@
 {
   "$schema": "https://opencode.ai/config.json",
 
-  // コーディングセッションを誤って公開しない。
   "share": "disabled",
-
-  // v2 の互換ディレクトリ自動検出に依存せず、共通配置先を明示する。
-  "skills": ["~/.agents/skills"],
-
-  // 既定モデル。opencode-go provider経由でDeepSeek V4.1 Flashを使う。
+  "update": "notify",
   "model": "opencode-go/deepseek-v4.1-flash",
 
-  // 既定の推論レベル。deepseek-v4.1-flash で使用できる最大値 (low/high/max のうち max)。
-  // variant 未選択時も max で動作させるため options で既定化する。
-  "provider": {
+  // variant 未選択時も max を適用する。
+  "providers": {
     "opencode-go": {
       "models": {
         "deepseek-v4.1-flash": {
-          "options": {
+          "settings": {
             "reasoningEffort": "max"
           }
         }
@@ -24,53 +18,39 @@
     }
   },
 
-  // DCP (Dynamic Context Pruning) plugin。
-  // version は pin し、upgrade は意図的に行う (@latest は使わない)。
-  "plugin": [
+  "plugins": [
     "@tarquinen/opencode-dcp@3.2.0"
   ],
 
-  // native compaction は DCP に一本化する。
-  // 手動の /compact は emergency fallback として利用できる。
+  // 自動圧縮は DCP に任せる。
   "compaction": {
     "auto": false
   },
 
-  "permission": {
-    // 現在のworktree内のファイル編集を許可する。
-    "edit": "allow",
-
-    // Web調査を事前承認する。
-    "websearch": "allow",
-    "webfetch": "allow",
-
-    // 現在のプロジェクト外へのアクセスでは確認を求める。
-    "external_directory": "ask",
-
-    // Shellコマンドは、原則として確認を求める。
-    // 明らかに非破壊な調査コマンドのみを事前承認する。
-    "bash": {
-      "*": "ask",
-
-      "pwd": "allow",
-      "ls": "allow",
-      "ls *": "allow",
-
-      "git status": "allow",
-      "git status *": "allow",
-      "git diff": "allow",
-      "git diff *": "allow",
-      "git log": "allow",
-      "git log *": "allow",
-      "git show": "allow",
-      "git show *": "allow",
-      "git rev-parse *": "allow",
-      "git ls-files": "allow",
-      "git ls-files *": "allow",
-      "git grep *": "allow",
-      "git branch --show-current": "allow",
-      "git branch --list": "allow",
-      "git branch --list *": "allow"
-    }
-  }
+  // 最後に一致したルールを優先。Shell の原則を先に、既存の例外を後に置く。
+  "permissions": [
+    {"action": "edit", "resource": "*", "effect": "allow"},
+    {"action": "websearch", "resource": "*", "effect": "allow"},
+    {"action": "webfetch", "resource": "*", "effect": "allow"},
+    {"action": "external_directory", "resource": "*", "effect": "ask"},
+    {"action": "shell", "resource": "*", "effect": "ask"},
+    {"action": "shell", "resource": "pwd", "effect": "allow"},
+    {"action": "shell", "resource": "ls", "effect": "allow"},
+    {"action": "shell", "resource": "ls *", "effect": "allow"},
+    {"action": "shell", "resource": "git status", "effect": "allow"},
+    {"action": "shell", "resource": "git status *", "effect": "allow"},
+    {"action": "shell", "resource": "git diff", "effect": "allow"},
+    {"action": "shell", "resource": "git diff *", "effect": "allow"},
+    {"action": "shell", "resource": "git log", "effect": "allow"},
+    {"action": "shell", "resource": "git log *", "effect": "allow"},
+    {"action": "shell", "resource": "git show", "effect": "allow"},
+    {"action": "shell", "resource": "git show *", "effect": "allow"},
+    {"action": "shell", "resource": "git rev-parse *", "effect": "allow"},
+    {"action": "shell", "resource": "git ls-files", "effect": "allow"},
+    {"action": "shell", "resource": "git ls-files *", "effect": "allow"},
+    {"action": "shell", "resource": "git grep *", "effect": "allow"},
+    {"action": "shell", "resource": "git branch --show-current", "effect": "allow"},
+    {"action": "shell", "resource": "git branch --list", "effect": "allow"},
+    {"action": "shell", "resource": "git branch --list *", "effect": "allow"}
+  ]
 }
