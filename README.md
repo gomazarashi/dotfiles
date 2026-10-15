@@ -168,23 +168,23 @@ Skill は dotfiles では管理せず、`npx skills` で各マシンに直接導
 
 ## OpenCode / DCP
 
-初回導入は OpenCode **2.0.29**、DCP は **3.2.0** に固定する。[v2 ネイティブ形式](https://opencode.ai/v2/docs/migrate-v1)で設定する。
+OpenCode v2 を使用し、DCP は **3.2.0** に固定する。[v2 ネイティブ形式](https://opencode.ai/v2/docs/migrate-v1)で設定する。
 
 ### Ubuntu 24.04
 
 ```sh
-curl -fsSL https://opencode.ai/v2/install | bash -s -- --version 2.0.29 --no-modify-path
+curl -fsSL https://opencode.ai/v2/install | bash -s -- --no-modify-path
 ```
 
 配置先は `~/.opencode/bin`。PATH は `~/.config/shell/path.sh` で管理する。パッケージ管理で導入した v1 は、設定をバックアップして削除してから実行する。curl 導入の v1 は上書きされる。
 
 ### Windows
 
-[Scoop versions](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) からバージョンを指定して導入する。
+[Scoop versions](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) から導入する。
 
 ```powershell
 scoop bucket add versions  # 未追加の場合
-scoop install versions/opencode2@2.0.29
+scoop install versions/opencode2
 scoop hold opencode2
 ```
 
@@ -195,7 +195,7 @@ scoop hold opencode2
 - 本体は `update: "notify"` で更新を通知し、自動インストールはしない。Windows は `scoop hold` で一括更新からも除外する。
 - 既定モデルは `opencode-go/deepseek-v4.1-flash`、`settings.reasoningEffort: "max"`。明示的な variant やプロジェクト設定は既定値を上書きする。Go の認証が必要。
 - worktree 内編集と Web 調査は許可する。外部ディレクトリと Shell は確認対象。Shell の例外は既存の `pwd` / `ls` / Git 調査パターンのみ。権限は最後に一致したルールを優先する。
-- `share: "disabled"`。2.0.29 は共有自体にも未対応。
+- `share: "disabled"` でセッションの共有を無効にする。
 - Skills の配置・自動検出は [docs/skills.md](docs/skills.md) を参照。
 - DCP は初回に自動取得し、バージョン固定と `autoUpdate: false` で更新を止める。range 圧縮は自動許可、閾値は 35% / 60%。ユーザーメッセージと指定ファイルを保護し、8 turn の保護・エラー入力整理・重複排除を行う。詳細は `dcp.jsonc` を参照。
 - 本体の自動 compaction は無効。手動は `/compact`、DCP の手動圧縮は `/dcp-compress [focus]`。どちらもモデルへのリクエストを伴う。
@@ -220,7 +220,7 @@ scoop hold opencode2
 chezmoi 適用後は OpenCode を再起動する。
 
 ```sh
-opencode --version  # opencode v2.0.29
+opencode --version
 opencode debug paths
 opencode debug config
 opencode models --standalone
