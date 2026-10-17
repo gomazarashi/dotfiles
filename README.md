@@ -185,14 +185,13 @@ curl -fsSL https://opencode.ai/v2/install | bash -s -- --no-modify-path
 ```powershell
 scoop bucket add versions  # 未追加の場合
 scoop install versions/opencode2
-scoop hold opencode2
 ```
 
 旧版がある場合は `~/.config/opencode` をバックアップし、`scoop uninstall opencode` または `scoop uninstall opencode2` で削除してから導入する。他方式の旧版もその方式で削除する。Scoop は公式サポート対象外。公式の代替は [Windows standalone バイナリ](https://opencode.ai/v2/docs/)。
 
 ### 設定
 
-- 本体は `update: "notify"` で更新を通知し、自動インストールはしない。Windows は `scoop hold` で一括更新からも除外する。
+- 本体は `update: "notify"` で更新を通知し、自動インストールはしない。Windows では Scoop の一括更新の対象とする。
 - 既定モデルは `opencode-go/deepseek-v4.1-flash`、`settings.reasoningEffort: "max"`。明示的な variant やプロジェクト設定は既定値を上書きする。Go の認証が必要。
 - worktree 内編集と Web 調査は許可する。外部ディレクトリと Shell は確認対象。Shell の例外は既存の `pwd` / `ls` / Git 調査パターンのみ。権限は最後に一致したルールを優先する。
 - `share: "disabled"` でセッションの共有を無効にする。
@@ -207,10 +206,8 @@ Ubuntu は `opencode upgrade` で最新版、`opencode upgrade <version>` で指
 ```powershell
 scoop bucket add versions  # 未追加の場合
 scoop update              # bucket の更新のみ
-scoop unhold opencode2
 scoop uninstall opencode2
 scoop install versions/opencode2
-scoop hold opencode2
 ```
 
 両 OS の版をそろえる場合は bucket のバージョンを確認し、Ubuntu でも同じ版を指定する。更新後は `opencode --version` を確認し、OpenCode を再起動する。DCP の更新は `opencode.jsonc` の固定バージョンを変更する。
