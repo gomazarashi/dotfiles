@@ -16,3 +16,6 @@ network_access = true
 
 [windows]
 sandbox = "elevated"
+
+[computer_use.windows]
+always_allowed_app_ids = ["python.exe"]
