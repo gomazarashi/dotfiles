@@ -1,6 +1,3 @@
-[user]
-	name = gomazarashi
-	email = gomazarashi0426@gmail.com
 [init]
 	defaultBranch = main
 [core]
@@ -18,8 +15,11 @@
 	autoSetupRemote = true
 [rerere]
 	enabled = true
+[include]
+	path = ~/.gitconfig-local
 {{ $alternate := get . "alternateGit" | default dict -}}
 {{ if get $alternate "enabled" }}
 [includeIf {{ printf "gitdir:%s/" (get $alternate "directory" | replace "\\" "/" | trimSuffix "/") | quote }}]
 	path = ~/.gitconfig-alternate
+	path = ~/.gitconfig-alternate-local
 {{ end -}}

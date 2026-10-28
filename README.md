@@ -145,6 +145,18 @@ Windows のパスは `C:/path/to/repositories` のように `/` を使うか、T
 
 テンプレートの切り替えは `python tests/check_alternate_git.py` で検証できる (Python / chezmoi / Git が必要)。検証には仮の値と一時ディレクトリだけを使う。
 
+## Git のローカル設定
+
+`~/.gitconfig` は共通設定を管理し、`~/.gitconfig-local` を読み込む。通常アカウントの名前・メール、`safe.directory` などの個人情報やマシン固有値はローカル側に置く。別アカウントの条件付き設定では、既存の `~/.gitconfig-alternate` に続けて、管理外の `~/.gitconfig-alternate-local` を読み込む。同じ単一値のキーは後者を優先する。
+
+```sh
+git config --file ~/.gitconfig-local user.name "Your Name"
+git config --file ~/.gitconfig-local user.email "you@example.com"
+git config --file ~/.gitconfig-local --add safe.directory /absolute/path/to/repo
+```
+
+`git config --global` は管理対象の `~/.gitconfig` に書き込むため、ローカル変更には上記の `--file` を使う。ローカルファイルは各マシンで用意し、`chezmoi add` しない。このリポジトリでは誤追加を防ぐため対応するファイル名を Git の ignore 対象にしている。`private_` は権限指定であり、Git の追跡を防ぐものではない。
+
 ## 共通 Agent Skills
 
 Skill は dotfiles では管理せず、`npx skills` で各マシンに直接導入する。使用中の Skill と導入・更新のコマンドは [docs/skills.md](docs/skills.md) を参照。

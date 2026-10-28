@@ -31,6 +31,8 @@ with tempfile.TemporaryDirectory(prefix="alternate-git-") as temporary:
         config.write_text(json.dumps({"sourceDir": str(source.parent), "data": data}), encoding="utf-8")
         return run("chezmoi", "--config", str(config), "execute-template", "--file", str(source / filename))
 
+    local = root / ".gitconfig-local"
+    local.write_text('[user]\n name = Local User\n email = local@example.invalid\n[safe]\n directory = /local-only\n', encoding="utf-8")
     baseline = None
     for data in ({}, {"alternateGit": {"enabled": False}}):
         text = render(data, "dot_gitconfig.tmpl")
@@ -48,12 +50,13 @@ with tempfile.TemporaryDirectory(prefix="alternate-git-") as temporary:
         alternate.write_text(render(data, "private_dot_gitconfig-alternate.tmpl"), encoding="utf-8")
         assert ".gitconfig-alternate" not in render(data, ".chezmoiignore")
         # Redirect only the include destination to the isolated test directory.
-        normal.write_text(normal.read_text(encoding="utf-8").replace("~/.gitconfig-alternate", alternate.as_posix()), encoding="utf-8")
+        normal.write_text(normal.read_text(encoding="utf-8").replace("~/.gitconfig-alternate", alternate.as_posix()).replace("~/.gitconfig-local", local.as_posix()).replace("~/.gitconfig-alternate-local", (root / "missing-alternate-local").as_posix()), encoding="utf-8")
         for key, expected in (("user.name", 'Example "Name"'), ("user.email", "example@example.invalid")):
             assert run("git", "-C", str(inside), "config", "--get", key, env=env).strip() == expected
             assert ".gitconfig-alternate" in run("git", "-C", str(inside), "config", "--show-origin", "--get", key, env=env)
         command = run("git", "-C", str(inside), "config", "--get", "core.sshCommand", env=env)
         assert shlex.split(command) == ["ssh", "-i", data["alternateGit"]["sshKey"].replace("\\", "/"), "-o", "IdentitiesOnly=yes"]
-        assert run("git", "-C", str(outside), "config", "--get", "user.name", env=env).strip() == "gomazarashi"
-        assert run("git", "-C", str(outside), "config", "--get", "user.email", env=env).strip() == "gomazarashi0426@gmail.com"
+        assert run("git", "-C", str(outside), "config", "--get", "user.name", env=env).strip() == "Local User"
+        assert run("git", "-C", str(outside), "config", "--get", "user.email", env=env).strip() == "local@example.invalid"
+        assert run("git", "-C", str(outside), "config", "--get-all", "safe.directory", env=env).strip() == "/local-only"
 print("PASS: absent/disabled data, path separators, conditional identity and SSH config")

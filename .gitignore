@@ -1,2 +1,10 @@
 # ローカル実行で生じる repo 直下の複製は管理しない
 /.codex/
+
+# 個人情報・マシン固有の Git 設定の誤追加を防ぐ
+.gitconfig-local
+.gitconfig-alternate-local
+dot_gitconfig-local
+private_dot_gitconfig-local
+dot_gitconfig-alternate-local
+private_dot_gitconfig-alternate-local
