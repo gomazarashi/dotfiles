@@ -1,5 +1,6 @@
 {{- $alternate := get . "alternateGit" | default dict -}}
 {{- if get $alternate "enabled" -}}
+{{- if not (and (get $alternate "directory") (get $alternate "sshKey")) }}{{ fail "alternateGit: directory と sshKey が必要" }}{{ end -}}
 [user]
 	name = {{ get $alternate "name" | quote }}
 	email = {{ get $alternate "email" | quote }}

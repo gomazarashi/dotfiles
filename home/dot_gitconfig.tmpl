@@ -19,6 +19,8 @@
 	path = ~/.gitconfig-local
 {{ $alternate := get . "alternateGit" | default dict -}}
 {{ if get $alternate "enabled" }}
+{{- /* 未設定だと gitdir:/ で全リポジトリに適用されるため止める */ -}}
+{{- if not (and (get $alternate "directory") (get $alternate "sshKey")) }}{{ fail "alternateGit: directory と sshKey が必要" }}{{ end }}
 [includeIf {{ printf "gitdir:%s/" (get $alternate "directory" | replace "\\" "/" | trimSuffix "/") | quote }}]
 	path = ~/.gitconfig-alternate
 	path = ~/.gitconfig-alternate-local
