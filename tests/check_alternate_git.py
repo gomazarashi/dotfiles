@@ -58,6 +58,11 @@ with tempfile.TemporaryDirectory(prefix="alternate-git-") as temporary:
     claude = json.loads(render({}, "dot_claude/modify_settings.json", '{"model": "sonnet", "custom": 1, "autoCompactEnabled": false}'))
     assert claude["model"] == "sonnet" and claude["custom"] == 1 and claude["autoCompactEnabled"] is True
     assert json.loads(render({}, "dot_claude/modify_settings.json", ""))["model"] == "opus"
+    # 削除済みの autoMode は消え、利用者が設定し直した autoMode は残る
+    old_auto = subprocess.run(["git", "-C", str(source.parent), "show", "5421794^:home/.chezmoitemplates/claude/settings.json"], capture_output=True, text=True, encoding="utf-8", check=True).stdout
+    old_auto = "{" + old_auto[old_auto.index('"autoMode"'):old_auto.index("{{- end }}")].rstrip().rstrip(",") + "}"
+    assert "autoMode" not in json.loads(render({}, "dot_claude/modify_settings.json", old_auto))
+    assert json.loads(render({}, "dot_claude/modify_settings.json", '{"autoMode": {"environment": ["mine"]}}'))["autoMode"] == {"environment": ["mine"]}
 
     local = root / ".gitconfig-local"
     local.write_text('[user]\n name = Local User\n email = local@example.invalid\n[safe]\n directory = /local-only\n', encoding="utf-8")

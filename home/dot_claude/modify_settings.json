@@ -5,6 +5,10 @@
 {{- if ne (trim .chezmoi.stdin) "" -}}
 {{- $current = fromJson .chezmoi.stdin -}}
 {{- end -}}
+{{- /* マージでは消えないため、5421794 で削除した autoMode と完全一致する場合だけ除く (Claude Code で設定し直した値は残す) */ -}}
+{{- if eq (get $current "autoMode" | toJson | sha256sum) "eec29aa536c3656fb3ffe12aa470671880f9f34d218b2e255a3de135e87c5c21" -}}
+{{- $_ := unset $current "autoMode" -}}
+{{- end -}}
 {{- $withDefaults := merge $current (includeTemplate "claude/defaults.json" . | fromJson) -}}
 {{- $merged := mergeOverwrite $withDefaults (includeTemplate "claude/settings.json" . | fromJson) -}}
 {{ toPrettyJson $merged }}
