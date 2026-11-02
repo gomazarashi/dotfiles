@@ -5,6 +5,7 @@ from pathlib import Path
 import shlex
 import subprocess
 import tempfile
+import tomllib
 
 
 def run(*args, env=None):
@@ -15,7 +16,8 @@ def run(*args, env=None):
 
 source = Path(__file__).resolve().parents[1] / "home"
 with tempfile.TemporaryDirectory(prefix="alternate-git-") as temporary:
-    root = Path(temporary)
+    # Windows の短縮名 (WAKABA~1) のままだと Git の解決後パスと一致しない
+    root = Path(temporary).resolve()
     config = root / "chezmoi.json"
     normal = root / ".gitconfig"
     alternate = root / ".gitconfig-alternate"
@@ -27,9 +29,35 @@ with tempfile.TemporaryDirectory(prefix="alternate-git-") as temporary:
     for variable in ("GIT_DIR", "GIT_WORK_TREE", "GIT_CONFIG_COUNT", "GIT_CONFIG_PARAMETERS"):
         env.pop(variable, None)
 
-    def render(data, filename):
+    def render(data, filename, stdin=None):
         config.write_text(json.dumps({"sourceDir": str(source.parent), "data": data}), encoding="utf-8")
-        return run("chezmoi", "--config", str(config), "execute-template", "--file", str(source / filename))
+        args = ["chezmoi", "--config", str(config), "execute-template", "--file", str(source / filename)]
+        if stdin is None:
+            return run(*args)
+        result = subprocess.run(args + ["--with-stdin"], input=stdin, capture_output=True, text=True, encoding="utf-8")
+        assert result.returncode == 0, f"{filename} failed (output suppressed)"
+        return result.stdout
+
+    # 必須値が欠けた有効化は、全リポジトリへの誤適用ではなく失敗にする
+    for missing in ("directory", "sshKey"):
+        data = {"enabled": True, "directory": "/work", "name": "N", "email": "e@example.invalid", "sshKey": "/k"}
+        del data[missing]
+        for filename in ("dot_gitconfig.tmpl", "private_dot_gitconfig-alternate.tmpl"):
+            config.write_text(json.dumps({"sourceDir": str(source.parent), "data": {"alternateGit": data}}), encoding="utf-8")
+            failed = subprocess.run(["chezmoi", "--config", str(config), "execute-template", "--file", str(source / filename)], capture_output=True)
+            assert failed.returncode != 0, f"{filename} rendered without {missing}"
+
+    # Codex: アプリが書いた state は残し、repo の値で上書きし、削除済みの値だけ除く
+    stale = '[computer_use.windows]\nalways_allowed_app_ids = ["python.exe"]\n'
+    codex = tomllib.loads(render({}, "dot_codex/modify_private_config.toml", 'model = "old"\n[projects."C:/x"]\ntrust_level = "trusted"\n' + stale))
+    assert codex["projects"]["C:/x"]["trust_level"] == "trusted" and codex["model"] != "old" and "computer_use" not in codex
+    own = tomllib.loads(render({}, "dot_codex/modify_private_config.toml", stale.replace("python.exe", "other.exe")))
+    assert own["computer_use"]["windows"]["always_allowed_app_ids"] == ["other.exe"]
+
+    # Claude: /model などの変更と未知のキーは残し、repo の settings.json は上書きする
+    claude = json.loads(render({}, "dot_claude/modify_settings.json", '{"model": "sonnet", "custom": 1, "autoCompactEnabled": false}'))
+    assert claude["model"] == "sonnet" and claude["custom"] == 1 and claude["autoCompactEnabled"] is True
+    assert json.loads(render({}, "dot_claude/modify_settings.json", ""))["model"] == "opus"
 
     local = root / ".gitconfig-local"
     local.write_text('[user]\n name = Local User\n email = local@example.invalid\n[safe]\n directory = /local-only\n', encoding="utf-8")
@@ -59,4 +87,4 @@ with tempfile.TemporaryDirectory(prefix="alternate-git-") as temporary:
         assert run("git", "-C", str(outside), "config", "--get", "user.name", env=env).strip() == "Local User"
         assert run("git", "-C", str(outside), "config", "--get", "user.email", env=env).strip() == "local@example.invalid"
         assert run("git", "-C", str(outside), "config", "--get-all", "safe.directory", env=env).strip() == "/local-only"
-print("PASS: absent/disabled data, path separators, conditional identity and SSH config")
+print("PASS: absent/disabled/incomplete data, path separators, conditional identity, SSH config, Codex/Claude merge")
