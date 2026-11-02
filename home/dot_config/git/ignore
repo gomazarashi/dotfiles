@@ -1,4 +1,4 @@
-# .config/git/ignore
+# OS やエディタが作るファイルを、すべてのリポジトリで無視する
 .DS_Store
 Thumbs.db
 desktop.ini

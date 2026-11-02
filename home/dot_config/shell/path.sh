@@ -1,4 +1,3 @@
-# ~/.config/shell/path.sh
 # ~/.profile と ~/.bashrc の両方から読み込む PATH 設定 (POSIX sh)。
 # 何度読み込んでも重複せず、同じ順序になる (先頭に追加したあと、PATH 全体で最初の出現だけを残す)。
 #

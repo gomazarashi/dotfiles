@@ -1,4 +1,5 @@
 {
+{{- /* draw.io で図を作るプラグインと、その取得元 */}}
   "enabledPlugins": {
     "drawio@drawio": true
   },
@@ -10,6 +11,7 @@
       }
     }
   },
+{{- /* モデルごとの思考量 (effort) */}}
   "modelSettings": {
     "claude-sonnet-5": {
       "effortLevel": "xhigh"
@@ -18,32 +20,9 @@
       "effortLevel": "high"
     }
   },
+{{- /* コンテキストが一杯になったら自動で要約する (既定値だが明示) */}}
   "autoCompactEnabled": true,
-{{- /* autoMode の environment は Linux 機で生成された内容のため Linux 限定で配備する */}}
-{{- if eq .chezmoi.os "linux" }}
-  "autoMode": {
-    "environment": [
-      "### Org-wide",
-      "**Organization**: None configured",
-      "**Cloud provider(s)**: None configured",
-      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
-      "**Secrets management**: None configured",
-      "**CI/CD deploy targets**: None configured",
-      "**Network posture**: None configured",
-      "**Trusted internal domains**: None configured",
-      "**Trusted cloud buckets**: None configured",
-      "**Key internal services**: None configured",
-      "**Internal package registry**: None configured",
-      "**Data retention / declassification**: None configured",
-      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment (hyphen/underscore/dot-delimited)",
-      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
-      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
-      "### User-specific",
-      "**Org-specific CLIs**: None configured",
-      "**routine under <user>/ prefix**: none identified"
-    ]
-  },
-{{- end }}
+{{- /* commit と PR に Claude の署名 (Co-Authored-By など) を付けない */}}
   "attribution": {
     "commit": "",
     "pr": ""

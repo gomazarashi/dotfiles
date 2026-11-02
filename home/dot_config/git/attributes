@@ -1,2 +1,2 @@
-# .config/git/attributes
+# すべてのリポジトリで改行を LF にそろえる (各リポジトリの .gitattributes が優先される)
 * text=auto eol=lf

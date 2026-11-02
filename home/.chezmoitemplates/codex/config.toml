@@ -1,18 +1,21 @@
-# ~/.codex/config.toml
-
 model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
 
+# 作業ディレクトリ内の書き込みは許可し、確認なしで実行する
 sandbox_mode = "workspace-write"
 approval_policy = "never"
 
+# Web 検索の結果を、キャッシュではなくその場で取得する
 web_search = "live"
 
 [features]
+# 過去に Codex のウィンドウが増殖するバグがあったため自動起動を止めている
 daemon_auto_start = false
 
 [sandbox_workspace_write]
+# sandbox 内からのネットワーク接続 (パッケージ取得など) を許可する
 network_access = true
 
 [windows]
+# Windows では隔離の強い sandbox を使う (初回に管理者権限で準備する)
 sandbox = "elevated"

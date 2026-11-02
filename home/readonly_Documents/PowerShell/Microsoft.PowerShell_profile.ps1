@@ -1,5 +1,5 @@
-# Microsoft.PowerShell_profile.ps1
-
+# コンソールの入出力と外部コマンドへの受け渡しを UTF-8 (BOM なし) にする
+# コンソールがない環境では設定に失敗するため、その場合は何もしない
 try {
     $utf8 = [System.Text.UTF8Encoding]::new($false)
     [Console]::InputEncoding = $utf8

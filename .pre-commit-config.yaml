@@ -1,3 +1,4 @@
+# commit 前に gitleaks で秘密情報の混入を検出する (有効化は pre-commit install)
 repos:
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.30.1

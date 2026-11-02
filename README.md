@@ -173,10 +173,10 @@ Skill は dotfiles では管理せず、`npx skills` で各マシンに直接導
 ## Claude Code
 
 - `~/.claude/settings.json` は `home/dot_claude/modify_settings.json` (modify_ テンプレート) で管理する。Codex と同じく、Claude Code が `/model` や `/config` で書いた内容を保持したまま、管理するキーだけを反映する。
-- `home/.chezmoitemplates/claude/settings.json` のキーは `chezmoi apply` のたびに上書きする。`autoMode` は Linux のみ。
+- `home/.chezmoitemplates/claude/settings.json` のキーは `chezmoi apply` のたびに上書きする。
 - `home/.chezmoitemplates/claude/defaults.json` (`model` / `effortLevel` / `theme`) は未設定のときだけ入れる初期値。`/model` などで変えた値は apply しても戻らない。
 - 管理外のキーはそのまま残る。テンプレートからキーを消しても、すでに配置したファイルからは消えない。
-- プロジェクト固有の設定 (信頼するリポジトリなど) はここに書かず、そのプロジェクトの `.claude/settings.local.json` に置く。`autoMode` は共有の `.claude/settings.json` からは読まれない。
+- プロジェクト固有の設定 (信頼するリポジトリなど) はここに書かず、そのプロジェクトの `.claude/settings.local.json` に置く。
 
 ## OpenCode / DCP
 

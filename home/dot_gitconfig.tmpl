@@ -1,21 +1,29 @@
 [init]
 	defaultBranch = main
 [core]
+	# 改行を変換すると元に戻せなくなるファイルがあれば警告する
 	safecrlf = warn
+	# commit 時に CRLF を LF へ変換し、checkout 時は変換しない
 	autocrlf = input
-	# Windows only: bypass MAX_PATH (260 chars) via \\?\ prefix. No-op on Linux.
+	# Windows で 260 文字を超えるパスを扱う (Linux では効果なし)
 	longpaths = true
 [fetch]
+	# リモートで削除されたブランチの追跡ブランチを、fetch 時に消す
 	prune = true
 [diff]
+	# 行を移動・並べ替えたときも読みやすい差分を出す
 	algorithm = histogram
 [merge]
+	# 競合箇所に共通祖先の内容も表示する
 	conflictStyle = zdiff3
 [push]
+	# 初回 push で upstream を自動で設定する
 	autoSetupRemote = true
 [rerere]
+	# 一度解決した競合の解き方を記録し、同じ競合で再利用する
 	enabled = true
 [include]
+	# 名前・メール・safe.directory などマシン固有の設定 (Git 管理外)
 	path = ~/.gitconfig-local
 {{ $alternate := get . "alternateGit" | default dict -}}
 {{ if get $alternate "enabled" }}
