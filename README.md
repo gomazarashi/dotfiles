@@ -147,11 +147,9 @@ Windows のパスは `C:/path/to/repositories` のように `/` を使うか、T
 
 ## Git のローカル設定
 
-`~/.gitconfig` は共通設定を管理し、`~/.gitconfig-local` を読み込む。通常アカウントの名前・メール、`safe.directory` などの個人情報やマシン固有値はローカル側に置く。別アカウントの条件付き設定では、既存の `~/.gitconfig-alternate` に続けて、管理外の `~/.gitconfig-alternate-local` を読み込む。同じ単一値のキーは後者を優先する。
+`~/.gitconfig` は通常アカウントの名前・メールを含む共通設定を管理し、最後に `~/.gitconfig-local` を読み込む。`safe.directory` などのマシン固有値はローカル側に置く。ローカル側に書いた値は共通設定より優先されるため、特定のマシンだけ名前・メールを変えることもできる。別アカウントの条件付き設定では、既存の `~/.gitconfig-alternate` に続けて、管理外の `~/.gitconfig-alternate-local` を読み込む。同じ単一値のキーは後者を優先する。
 
 ```sh
-git config --file ~/.gitconfig-local user.name "Your Name"
-git config --file ~/.gitconfig-local user.email "you@example.com"
 git config --file ~/.gitconfig-local --add safe.directory /absolute/path/to/repo
 ```
 

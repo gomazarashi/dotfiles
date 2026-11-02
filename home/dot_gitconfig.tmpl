@@ -1,3 +1,7 @@
+# 通常使うアカウント (マシンごとに変えるときは ~/.gitconfig-local で上書きする)
+[user]
+	name = gomazarashi
+	email = gomazarashi0426@gmail.com
 [init]
 	defaultBranch = main
 [core]
@@ -23,7 +27,7 @@
 	# 一度解決した競合の解き方を記録し、同じ競合で再利用する
 	enabled = true
 [include]
-	# 名前・メール・safe.directory などマシン固有の設定 (Git 管理外)
+	# safe.directory などマシン固有の設定 (Git 管理外。上の設定より優先される)
 	path = ~/.gitconfig-local
 {{ $alternate := get . "alternateGit" | default dict -}}
 {{ if get $alternate "enabled" }}
