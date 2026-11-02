@@ -2,6 +2,11 @@
 {{- $base := includeTemplate "codex/config.toml" . | fromToml -}}
 {{- $merged := $base -}}
 {{- if ne (trim .chezmoi.stdin) "" -}}
-{{- $merged = mergeOverwrite (fromToml .chezmoi.stdin) $base -}}
+{{- $current := fromToml .chezmoi.stdin -}}
+{{- /* マージでは消えないため、e18e2b9 で削除した値と完全一致する場合だけ除く (Codex が書いた別の値は残す) */ -}}
+{{- if eq (get $current "computer_use" | toJson) (dict "windows" (dict "always_allowed_app_ids" (list "python.exe")) | toJson) -}}
+{{- $_ := unset $current "computer_use" -}}
+{{- end -}}
+{{- $merged = mergeOverwrite $current $base -}}
 {{- end -}}
 {{ toToml $merged }}
