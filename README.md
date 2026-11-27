@@ -1,20 +1,19 @@
 # dotfiles
 
-個人用。Ubuntu 24.04 / Windows を [chezmoi](https://www.chezmoi.io/) で管理する。
+Ubuntu 24.04 と Windows の個人設定を [chezmoi](https://www.chezmoi.io/) で管理する。
 
 - **source state** (設定の元データ) はこのリポジトリの `home/` 以下 (`.chezmoiroot` で指定)
 - **target** (実際に配置される `$HOME` 側のファイル) へは symlink/hardlink ではなく実ファイルをコピーする
+- 秘密情報やマシン固有のローカル設定 (`~/.config/chezmoi/chezmoi.toml`、SSH 秘密鍵、`*-local`、`local.config.toml` など) は Git で管理しない (`chezmoi add` しない)。`private_` は権限指定であり、Git の追跡を防ぐものではない
 
-## 設定を変更してマシンに適用する
-
-流れは次のとおり。
+## 設定の変更と適用
 
 1. source state (`home/` 以下) を編集する
 2. `chezmoi diff` と `chezmoi apply --dry-run --verbose` で差分を確認する
 3. `chezmoi apply` で `$HOME` に適用する
 4. 他のマシンへ反映する場合は commit / push し、各マシンで `chezmoi update` する
 
-> **重要**: `$HOME` 側のファイル (`~/.bashrc` など) を直接編集しない。次に `chezmoi apply` したときに上書きされる。変更は必ず source state に書く。
+> **重要**: `$HOME` 側のファイル (`~/.bashrc` など) を直接編集しても、次の `chezmoi apply` で上書きされる。変更は必ず source state に書く。
 
 ### 1. source state を編集する
 
@@ -33,10 +32,9 @@ chezmoi cd               # source ディレクトリでシェルを開く
 - `dot_config/opencode/opencode.jsonc` → `~/.config/opencode/opencode.jsonc` (ディレクトリ構造はそのまま対応する)
 - `AppData/Roaming/Zed/settings.json.tmpl` → `%APPDATA%\Zed\settings.json` (Windows のみ)
 - `readonly_Documents/PowerShell/Microsoft.PowerShell_profile.ps1.tmpl` → `$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` (Windows のみ)
-- `dot_codex/modify_private_config.toml` → `~/.codex/config.toml` (特殊。下の「Codex」を参照)
-- `.tmpl` が付いたファイルは**テンプレート**。`{{ ... }}` が展開されてから配置される
-- 同じ内容を複数の配置先で使う場合は `.chezmoitemplates/` に 1 つだけ置き、各ファイルから `includeTemplate` で参照する (Zed がこの方式)
-- **新しいファイルを管理対象に追加する**: `chezmoi add ~/.config/foo/bar.conf` を実行すると `home/dot_config/foo/bar.conf` が作られる。OS 専用のファイルなら `.chezmoiignore` に条件を追記して他の OS では配置しないようにする
+- `dot_codex/modify_private_config.toml` → `~/.codex/config.toml` (マージ方式。下の「Codex / Claude Code」を参照)
+- `.tmpl` はテンプレート (`{{ ... }}` を展開して配置)。複数の配置先で共有する内容は `.chezmoitemplates/` に置き、`includeTemplate` で参照する (Zed など)
+- 新規ファイルの追加は `chezmoi add ~/.config/foo/bar.conf` (`home/dot_config/foo/bar.conf` が作られる)。OS 専用なら `.chezmoiignore` に条件を追記する
 
 ### 2. 差分を確認する (必須)
 
@@ -45,18 +43,15 @@ chezmoi diff
 chezmoi apply --dry-run --verbose
 ```
 
-確認するポイントは次のとおり。
-
-- Codex が自動生成した state (`[projects.*]` の trust など) が消えていないか
-- 意図しないファイルの削除がないか
-- OS 混在の配置 (Linux 用が Windows に、またはその逆) がないか
-- secret / token / credential が差分に含まれていないか
+- Codex や Claude Code が自動生成した state (`[projects.*]` の trust など) が消えていないか
+- 意図しないファイル削除や OS 混在の配置 (Linux 用が Windows に出るなど) がないか
+- secret / token / credential が含まれていないか (差分出力にはローカルの実値が含まれるため公開しない)
 
 ### 3. 適用する
 
 ```sh
 chezmoi apply            # すべて適用
-chezmoi apply ~/.bashrc  # 1 ファイルだけ適用
+chezmoi apply ~/.bashrc  # 指定ファイルだけ適用
 ```
 
 ### 4. 他のマシンへ反映する
@@ -68,10 +63,8 @@ git -C ~/.dotfiles commit -m "..."
 git -C ~/.dotfiles push
 
 # 反映先のマシン
-chezmoi update           # source repo の git pull + chezmoi apply
+chezmoi update           # git pull + chezmoi apply (手動で git pull した場合は chezmoi apply)
 ```
-
-`git pull` を手動で行った場合は `chezmoi apply` を実行する。
 
 ## 新しいマシンのセットアップ
 
@@ -87,13 +80,13 @@ sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b "$HOME/.local/bin"
 scoop install chezmoi
 ```
 
-2. source state の場所を chezmoi に教える (`~/.config/chezmoi/chezmoi.toml`)
+2. `~/.config/chezmoi/chezmoi.toml` に source state の場所を設定する
 
 ```toml
 sourceDir = "~/.dotfiles"
 ```
 
-3. リポジトリを clone して適用する
+3. リポジトリを clone し、差分を確認して適用する
 
 ```sh
 git clone git@github.com:gomazarashi/dotfiles.git ~/.dotfiles
@@ -103,17 +96,29 @@ chezmoi apply
 
 ## OS 別の配置
 
-- 配置先の一覧は `chezmoi managed` で確認する。OS 専用ファイルは `.chezmoiignore` の template 条件で制御する。
-- Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,shell,tmux,zed}`
+配置先の一覧は `chezmoi managed` で確認できる。OS 専用ファイルは `.chezmoiignore` のテンプレート条件で制御する。
+
+- Linux 専用: `.bashrc` / `.profile` / `.config/{ghostty,nix,shell,tmux,zed}` (`.config/shell/path.sh` は PATH 設定で `.bashrc` と `.profile` の両方から読み込む)
 - Windows 専用: `AppData/**` / `Documents/**` (Zed は `%APPDATA%\Zed\settings.json`)
-- `.config/shell/path.sh` は PATH 設定で、`.bashrc` / `.profile` の両方から読み込む。
-- `private_dot_gitconfig-alternate.tmpl` はローカル設定が有効な場合のみ配置する。
+- 条件付き配置: `private_dot_gitconfig-alternate.tmpl` はローカル設定で有効な場合のみ配置する
 
-## ディレクトリ別の Git アカウント
+## Git と GitHub CLI の設定
 
-通常の Git identity はそのまま維持し、ローカル設定で指定したディレクトリ以下だけ `includeIf` で `~/.gitconfig-alternate` を読み込む。Git の名前・メールアドレスと、SSH 認証に使う鍵を切り替える。
+### Git のローカル設定
 
-各マシンの `~/.config/chezmoi/chezmoi.toml` に、既存の `sourceDir` 等を残したまま次の設定を追加する。値は各マシンに合わせて置き換える。このファイルや SSH 秘密鍵はリポジトリで管理しない。
+`~/.gitconfig` は共通設定を管理し、最後に管理外の `~/.gitconfig-local` を読み込む。別アカウント用の `~/.gitconfig-alternate` も同様に `~/.gitconfig-alternate-local` を続けて読み込む。後に読み込むローカル側が優先されるため、`safe.directory` などのマシン固有値やマシン別の名前・メールの上書きに使う。
+
+```sh
+git config --file ~/.gitconfig-local --add safe.directory /absolute/path/to/repo
+```
+
+`git config --global` は管理対象の `~/.gitconfig` に書き込むため、ローカル変更には `--file` を使う。誤追加防止のため、対応するローカルファイル名は `.gitignore` に登録している。
+
+### ディレクトリ別の Git アカウント
+
+通常の Git identity は維持したまま、指定ディレクトリ以下だけ `includeIf` で `~/.gitconfig-alternate` を読み込み、Git の名前・メールアドレスと SSH 鍵を切り替える。
+
+各マシンの `~/.config/chezmoi/chezmoi.toml` に、`sourceDir` 等を残したまま次を追記する (Ubuntu / Windows 共通)。
 
 ```toml
 [data.alternateGit]
@@ -124,17 +129,15 @@ email = "you@example.com"
 sshKey = "/absolute/path/to/private-key"
 ```
 
-Windows のパスは `C:/path/to/repositories` のように `/` を使うか、TOML の単一引用符で囲む。ディレクトリ・鍵のパスには絶対パスを指定する。Ubuntu / Windows とも同じ仕組みで、設定未登録または `enabled = false` のマシンでは切り替えを行わない。
-
-鍵を別アカウントに登録し、対象リポジトリの GitHub remote に SSH URL を使用する。HTTPS URL では `core.sshCommand` による鍵の切り替えは働かない。リポジトリ固有の Git 設定や環境変数による上書きは、この設定より優先される。
-
-適用前には `chezmoi diff` と `chezmoi apply --dry-run --verbose` で差分を確認する。これらの出力にはローカルの実値が含まれるため公開しない。この設定のファイルだけを適用する場合は `chezmoi apply ~/.gitconfig ~/.gitconfig-alternate` を使う。無効化後も既存の alternate ファイルは残るが、通常設定からは読み込まれない。
-
-テンプレートの切り替えは `python tests/check_alternate_git.py` で検証できる (Python / chezmoi / Git が必要)。検証には仮の値と一時ディレクトリだけを使う。
+- `directory` と `sshKey` は絶対パスで指定する。Windows では `C:/path/to/repositories` のように `/` を使うか、TOML の単一引用符で囲む。
+- SSH 鍵を別アカウントに登録し、対象リポジトリの GitHub remote に SSH URL を使う。HTTPS URL では `core.sshCommand` による鍵の切り替えは働かない。リポジトリ固有の Git 設定や環境変数はこの設定より優先される。
+- 未設定または `enabled = false` の場合は切り替えない。無効化後も既存の `~/.gitconfig-alternate` は残るが、`~/.gitconfig` からは読み込まれなくなる。
+- この設定だけを適用する場合は `chezmoi apply ~/.gitconfig ~/.gitconfig-alternate` を使う。
+- 検証コマンド: `python tests/check_alternate_git.py` (Python / chezmoi / Git が必要。仮の値と一時ディレクトリのみで検証する)
 
 ### PowerShell の GitHub CLI 認証
 
-Git の identity・SSH 鍵と GitHub CLI の認証は別に設定する。特定のリポジトリで別の GitHub CLI アカウントを使う場合は、同じ Git 管理外の `~/.config/chezmoi/chezmoi.toml` に次を追加する。実際のディレクトリやアカウント名はこのローカルファイルだけに記載し、`chezmoi add` しない。
+Git の identity・SSH 鍵と GitHub CLI (`gh`) の認証は別管理になる。特定のリポジトリで別の GitHub CLI アカウントを使う場合は、`~/.config/chezmoi/chezmoi.toml` に次を追記する (ローカルの実値は適用先のプロファイルに展開され、source には入らない)。
 
 ```toml
 [data.alternateGh]
@@ -144,91 +147,85 @@ configDirectory = 'C:\path\to\separate-gh-config'
 account = "your-other-account"
 ```
 
-`repository` は対象リポジトリのルートへの絶対パス、`configDirectory` は別アカウントの認証を保存する絶対パス。有効化時は3項目すべて必要で、未設定または `enabled = false` なら `gh` 関数を配置しない。適用後に新しい PowerShell を開くと反映される。対象リポジトリでは `GH_TOKEN` / `GITHUB_TOKEN` の併用を拒否し、認証設定とヘルプ以外の操作ではアカウントを確認する。
-
-このテンプレートは `python tests/check_gh_profile.py` で検証できる (Python / chezmoi / PowerShell が必要)。ローカルの実値が入るのは適用先のプロファイルであり、ソースには入らない。
-
-## Git のローカル設定
-
-`~/.gitconfig` は通常アカウントの名前・メールを含む共通設定を管理し、最後に `~/.gitconfig-local` を読み込む。`safe.directory` などのマシン固有値はローカル側に置く。ローカル側に書いた値は共通設定より優先されるため、特定のマシンだけ名前・メールを変えることもできる。別アカウントの条件付き設定では、既存の `~/.gitconfig-alternate` に続けて、管理外の `~/.gitconfig-alternate-local` を読み込む。同じ単一値のキーは後者を優先する。
-
-```sh
-git config --file ~/.gitconfig-local --add safe.directory /absolute/path/to/repo
-```
-
-`git config --global` は管理対象の `~/.gitconfig` に書き込むため、ローカル変更には上記の `--file` を使う。ローカルファイルは各マシンで用意し、`chezmoi add` しない。このリポジトリでは誤追加を防ぐため対応するファイル名を Git の ignore 対象にしている。`private_` は権限指定であり、Git の追跡を防ぐものではない。
+- `repository` (対象リポジトリのルート) と `configDirectory` (別アカウントの認証保存先) は絶対パスで指定する。有効化時は 3 項目すべて必須。
+- 未設定または `enabled = false` なら `gh` 関数を配置しない。適用後に新しい PowerShell を開くと反映される。
+- 対象リポジトリでは `GH_TOKEN` / `GITHUB_TOKEN` の併用を拒否し、認証設定とヘルプ以外の操作ではアカウントを確認する。
+- 検証コマンド: `python tests/check_gh_profile.py` (Python / chezmoi / PowerShell が必要)
 
 ## 共通 Agent Skills
 
-Skill は dotfiles では管理せず、`npx skills` で各マシンに直接導入する。使用中の Skill と導入・更新のコマンドは [docs/skills.md](docs/skills.md) を参照。
+Skill は dotfiles では管理せず、`npx skills` で各マシンに直接導入する。使用中の Skill と導入・更新・削除の手順は [docs/skills.md](docs/skills.md) を参照。
 
-## Codex
+## Codex / Claude Code
 
-- `~/.codex/config.toml` は `home/dot_codex/modify_private_config.toml` (modify_ テンプレート、`private_` で権限 600 を維持) で管理する。`home/.chezmoitemplates/codex/config.toml` が portable な設定で、`chezmoi apply` はそこに書かれたキーだけを上書きする。Codex が自動生成した state (`[projects.*]` の trust、`mcp_servers`、`notify`、`marketplaces`、`plugins` など) は TOML マージで保持される。
-- portable 設定を変えるときは `home/.chezmoitemplates/codex/config.toml` を編集して apply する。`~/.codex/config.toml` を直接編集しても次の apply で元に戻る。
-- マシン固有の上書きは `~/.codex/local.config.toml` (Git 管理外) に書く。読み込ませるには `codex --profile local` を付ける。`--profile` は runtime 系コマンド専用 (`codex` / `exec` / `review` / `resume` / `mcp` など) で、`codex login` / `doctor` / `plugin` / `features` などには付けない。
-- apply のたびに `config.toml` は TOML として正規化される (コメント・キー順・空行は保存されない)。
-- merge 方式のため、portable 設定からキーを削除しただけでは `~/.codex/config.toml` から消えない場合がある。完全に削除したい場合は target 側のキーを明示的に削除する。
+どちらも `modify_` テンプレートで管理し、ツール側が実行時に書き込む state を保持したまま、管理対象のキーだけを上書きする。
 
-## Claude Code
+マージ方式のため、テンプレートからキーを削除しても target 側に残る場合がある。完全に消す場合は target 側からも明示的に削除する。
 
-- `~/.claude/settings.json` は `home/dot_claude/modify_settings.json` (modify_ テンプレート) で管理する。Codex と同じく、Claude Code が `/model` や `/config` で書いた内容を保持したまま、管理するキーだけを反映する。
-- `home/.chezmoitemplates/claude/settings.json` のキーは `chezmoi apply` のたびに上書きする。
-- `home/.chezmoitemplates/claude/defaults.json` (`model` / `effortLevel` / `theme`) は未設定のときだけ入れる初期値。`/model` などで変えた値は apply しても戻らない。
-- 管理外のキーはそのまま残る。テンプレートからキーを消しても、すでに配置したファイルからは消えない。
-- プロジェクト固有の設定 (信頼するリポジトリなど) はここに書かず、そのプロジェクトの `.claude/settings.local.json` に置く。
+### Codex
+
+- `~/.codex/config.toml` は `home/dot_codex/modify_private_config.toml` (`private_` で権限 600 を維持) で管理し、`home/.chezmoitemplates/codex/config.toml` のキーだけを上書きする。
+- Codex が自動生成した state (`[projects.*]` の trust、`mcp_servers`、`notify`、`marketplaces`、`plugins` など) は TOML マージで保持される。apply のたびに TOML として正規化されるため、コメント・キー順・空行は保存されない。
+- マシン固有の上書きは `~/.codex/local.config.toml` (Git 管理外) に書き、`codex --profile local` で読み込ませる。`--profile` は runtime 系コマンド (`codex` / `exec` / `review` / `resume` / `mcp` など) 専用で、`codex login` / `doctor` / `plugin` / `features` などには付けない。
+
+### Claude Code
+
+- `~/.claude/settings.json` は `home/dot_claude/modify_settings.json` で管理し、`home/.chezmoitemplates/claude/settings.json` のキーを apply のたびに上書きする。
+- `home/.chezmoitemplates/claude/defaults.json` (`model` / `effortLevel` / `theme`) は未設定のときだけ補う初期値。Claude Code 内で `/model` や `/config` により変更した値や管理外のキーは apply しても保持される。
+- プロジェクト固有の設定 (信頼するリポジトリなど) は各プロジェクトの `.claude/settings.local.json` に置く。
 
 ## OpenCode / DCP
 
 OpenCode v2 を使用し、[v2 ネイティブ形式](https://opencode.ai/v2/docs/migrate-v1)で設定する。
 
-> 2026-11-14 から試験中で、DCP を外して本体の自動 compaction に任せている。v1 では自動 compaction の動作に不安があったため、v2 で問題が出ないか確認する。問題がなければ、DCP の設定 (`opencode.jsonc` のコメント行と `dcp.jsonc`) とこの README の DCP の記述を削除する。問題が出た場合は `opencode.jsonc` の DCP のコメントを外し、`compaction.auto` を `false` に戻す。DCP を使うときは **3.2.0** に固定する。
+> **DCP 試験について (2026-11-14〜)**: 現在 DCP を外し、本体の自動 compaction (`compaction.auto: true`) を試験している (v1 では動作に不安があったため v2 で確認中)。
+>
+> - 問題なければ: `opencode.jsonc` の DCP コメント行、`dcp.jsonc`、この README の DCP 記述を削除する。
+> - 問題が出た場合: `opencode.jsonc` の DCP のコメントを外し、`compaction.auto` を `false` に戻す。DCP のバージョンは **3.2.0** に固定する。
 
-### Ubuntu 24.04
+### 導入
+
+**Ubuntu 24.04**
 
 ```sh
 curl -fsSL https://opencode.ai/v2/install | bash -s -- --no-modify-path
 ```
 
-配置先は `~/.opencode/bin`。PATH は `~/.config/shell/path.sh` で管理する。パッケージ管理で導入した v1 は、設定をバックアップして削除してから実行する。curl で導入した v1 は上書きされる。
+配置先は `~/.opencode/bin` (PATH は `~/.config/shell/path.sh` で管理)。パッケージ管理で導入した v1 は設定をバックアップして削除してから実行する (curl 導入の v1 はそのまま上書きされる)。
 
-### Windows
+**Windows**
 
-[Scoop versions](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) から導入する。
+公式のパッケージマネージャー対応はないため (公式は [Windows standalone バイナリ](https://opencode.ai/v2/docs/) のみ)、非公式の [Scoop versions](https://github.com/ScoopInstaller/Versions/blob/master/bucket/opencode2.json) から導入する。
 
 ```powershell
 scoop bucket add versions  # 未追加の場合
 scoop install versions/opencode2
 ```
 
-旧版がある場合は `~/.config/opencode` をバックアップし、`scoop uninstall opencode` または `scoop uninstall opencode2` で削除してから導入する。他の方式で導入した旧版はその方式で削除する。v1 に戻す場合は `scoop install versions/opencode1` を使う。
-
-Scoop は非公式の導入方法で、公式は Windows のパッケージマネージャーに対応していない。公式の導入方法は [Windows standalone バイナリ](https://opencode.ai/v2/docs/) のみ。
+旧版がある場合は `~/.config/opencode` をバックアップし、`scoop uninstall opencode` または `scoop uninstall opencode2` (他の導入方式ならその方式) で削除してから導入する。v1 に戻す場合は `scoop install versions/opencode1` を使う。
 
 ### 設定
 
-- モデル・権限・共有・compaction は `opencode.jsonc`、DCP は `dcp.jsonc` を参照する (各項目にコメントがある)。既定モデルを使うには Go の認証が必要。
-- 本体は `update: "notify"` で更新を通知するだけで、自動インストールはしない。
-- 試験中は本体の自動 compaction を有効にしている (`compaction.auto: true`)。手動の圧縮は `/compact` で、モデルへのリクエストを伴う。
-- DCP を戻した場合は、本体の自動 compaction を無効にして DCP に任せる。DCP は初回に自動取得し、バージョン固定と `autoUpdate: false` で更新を止める。手動の圧縮には `/dcp-compress [focus]` を使う。
-- Skills の配置・自動検出は [docs/skills.md](docs/skills.md) を参照。
+- モデル・権限・共有・compaction は `opencode.jsonc`、DCP は `dcp.jsonc` で管理する (各項目にコメントあり)。既定モデルを使うには Go の認証が必要。Skills の自動検出は [docs/skills.md](docs/skills.md) を参照。
+- 本体は `update: "notify"` で更新通知のみ行い、自動更新はしない。
+- 本体の手動圧縮は `/compact` (モデルへのリクエストを伴う)。
+- DCP に戻した場合は、初回起動時に自動取得され、バージョン固定と `autoUpdate: false` で更新を止める。DCP の手動圧縮は `/dcp-compress [focus]`。
 
 ### 手動更新
 
-Ubuntu は `opencode upgrade` で最新版、`opencode upgrade <version>` で指定版へ更新する。Windows では Scoop に対応していない本体の更新コマンドを使わず、任意のタイミングで versions bucket の版へ更新する。
+- **Ubuntu**: `opencode upgrade` (最新版) または `opencode upgrade <version>` (指定版)
+- **Windows**: 本体の更新コマンドは Scoop 非対応のため使わず、実行中の `opencode` を終了してから Scoop で更新する (実行中だとスキップされる。再インストールは不要)。
 
 ```powershell
 scoop update              # bucket の更新のみ
 scoop update opencode2    # 実行中の opencode を終了してから実行する
 ```
 
-実行中の `opencode` があると Scoop は更新をスキップする。アンインストールして入れ直す必要はない。
+両 OS の版をそろえる場合は bucket のバージョンを確認し、Ubuntu 側で同じ版を指定する。更新後は `opencode --version` を確認して再起動する。DCP を戻して更新する場合は `opencode.jsonc` の固定バージョンを変更する。
 
-両 OS の版をそろえる場合は bucket のバージョンを確認し、Ubuntu でも同じ版を指定する。更新後は `opencode --version` を確認し、OpenCode を再起動する。DCP を戻して更新する場合は `opencode.jsonc` の固定バージョンを変更する。
+### 確認とトラブルシューティング
 
-### 確認
-
-chezmoi 適用後は OpenCode を再起動する。
+chezmoi 適用後は OpenCode を再起動する (診断出力はそのまま公開しない)。
 
 ```sh
 opencode --version
@@ -237,6 +234,5 @@ opencode debug config
 opencode models --standalone
 ```
 
-DCP を戻した場合の確認には OpenCode 内の `/dcp` を使う。v2.3.0 では DCP が有効でも `opencode plugin list` が「No plugins found」を返すことがある。
-
-旧版が起動する場合は、Ubuntu では `type -a opencode`、Windows では `Get-Command opencode -All` で実行パスを確認する。診断出力はそのまま公開しない。初回取得中に `Location plugins did not finish activating` と表示された場合は、取得完了後に再試行する。
+- DCP を戻した場合の確認は OpenCode 内の `/dcp` を使う (v2.3.0 では DCP が有効でも `opencode plugin list` が「No plugins found」を返すことがある)。初回取得中に `Location plugins did not finish activating` と出た場合は、取得完了後に再試行する。
+- 旧版が起動する場合は、Ubuntu では `type -a opencode`、Windows では `Get-Command opencode -All` で実行パスを確認する。
