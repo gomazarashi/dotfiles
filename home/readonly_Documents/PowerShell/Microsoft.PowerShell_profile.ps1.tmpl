@@ -1,0 +1,45 @@
+# コンソールの入出力と外部コマンドへの受け渡しを UTF-8 (BOM なし) にする
+# コンソールがない環境では設定に失敗するため、その場合は何もしない
+try {
+    $utf8 = [System.Text.UTF8Encoding]::new($false)
+    [Console]::InputEncoding = $utf8
+    [Console]::OutputEncoding = $utf8
+    $OutputEncoding = $utf8
+}
+catch {}
+
+{{ $alternate := get . "alternateGh" | default dict -}}
+{{ if get $alternate "enabled" -}}
+{{ if not (and (get $alternate "repository") (get $alternate "configDirectory") (get $alternate "account")) }}{{ fail "alternateGh: repository・configDirectory・account が必要" }}{{ end -}}
+# 指定したリポジトリだけ、ローカル設定の GitHub CLI 認証を使う。
+function gh {
+    $ghExecutable = (Get-Command gh.exe -CommandType Application -ErrorAction Stop).Source
+    $targetRepository = [IO.Path]::GetFullPath('{{ get $alternate "repository" | replace "'" "''" }}')
+    $expectedAccount = '{{ get $alternate "account" | replace "'" "''" }}'
+    $repositoryRoot = git rev-parse --show-toplevel 2>$null
+    if ($LASTEXITCODE -ne 0 -or [IO.Path]::GetFullPath($repositoryRoot) -ne $targetRepository) {
+        & $ghExecutable @args
+        return
+    }
+
+    # 環境変数のトークンは保存済み認証より優先されるため、併用を止める。
+    if ($env:GH_TOKEN -or $env:GITHUB_TOKEN) {
+        throw '別アカウントで gh を使う前に、GH_TOKEN と GITHUB_TOKEN を解除してください。'
+    }
+    $previousConfigDirectory = $env:GH_CONFIG_DIR
+    try {
+        $env:GH_CONFIG_DIR = '{{ get $alternate "configDirectory" | replace "'" "''" }}'
+        # 認証の設定とヘルプ以外は、APIでアカウントを確認してから実行する。
+        if ($args.Count -gt 0 -and $args[0] -notin @('auth', 'help', '--help', '--version')) {
+            $account = & $ghExecutable api user --jq .login 2>$null
+            if ($LASTEXITCODE -ne 0 -or $account -ne $expectedAccount) {
+                throw "$expectedAccount での認証が必要です。このリポジトリで gh auth login --hostname github.com --web --git-protocol ssh --skip-ssh-key を実行してください。"
+            }
+        }
+        & $ghExecutable @args
+    }
+    finally {
+        $env:GH_CONFIG_DIR = $previousConfigDirectory
+    }
+}
+{{ end -}}

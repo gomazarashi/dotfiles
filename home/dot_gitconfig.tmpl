@@ -1,0 +1,39 @@
+# 通常使うアカウント (マシンごとに変えるときは ~/.gitconfig-local で上書きする)
+[user]
+	name = gomazarashi
+	email = gomazarashi0426@gmail.com
+[init]
+	defaultBranch = main
+[core]
+	# 改行を変換すると元に戻せなくなるファイルがあれば警告する
+	safecrlf = warn
+	# commit 時に CRLF を LF へ変換し、checkout 時は変換しない
+	autocrlf = input
+	# Windows で 260 文字を超えるパスを扱う (Linux では効果なし)
+	longpaths = true
+[fetch]
+	# リモートで削除されたブランチの追跡ブランチを、fetch 時に消す
+	prune = true
+[diff]
+	# 行を移動・並べ替えたときも読みやすい差分を出す
+	algorithm = histogram
+[merge]
+	# 競合箇所に共通祖先の内容も表示する
+	conflictStyle = zdiff3
+[push]
+	# 初回 push で upstream を自動で設定する
+	autoSetupRemote = true
+[rerere]
+	# 一度解決した競合の解き方を記録し、同じ競合で再利用する
+	enabled = true
+[include]
+	# safe.directory などマシン固有の設定 (Git 管理外。上の設定より優先される)
+	path = ~/.gitconfig-local
+{{ $alternate := get . "alternateGit" | default dict -}}
+{{ if get $alternate "enabled" }}
+{{- /* 未設定だと gitdir:/ で全リポジトリに適用されるため止める */ -}}
+{{- if not (and (get $alternate "directory") (get $alternate "sshKey")) }}{{ fail "alternateGit: directory と sshKey が必要" }}{{ end }}
+[includeIf {{ printf "gitdir:%s/" (get $alternate "directory" | replace "\\" "/" | trimSuffix "/") | quote }}]
+	path = ~/.gitconfig-alternate
+	path = ~/.gitconfig-alternate-local
+{{ end -}}

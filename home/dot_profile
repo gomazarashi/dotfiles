@@ -1,0 +1,11 @@
+# ログインシェルでも .bashrc の設定を使う
+if [ -n "$BASH_VERSION" ]; then
+    if [ -f "$HOME/.bashrc" ]; then
+        . "$HOME/.bashrc"
+    fi
+fi
+
+# PATH (~/.bashrc と共通。.bashrc は非対話シェルでは先頭で終了するため、ここでも読み込む)
+if [ -f "$HOME/.config/shell/path.sh" ]; then
+    . "$HOME/.config/shell/path.sh"
+fi

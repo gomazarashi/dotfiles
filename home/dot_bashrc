@@ -1,0 +1,56 @@
+# 対話シェルでなければ何もしない
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# 履歴には重複行と空白で始まる行を残さず、終了時は上書きせず追記する
+HISTCONTROL=ignoreboth
+shopt -s histappend
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# 端末サイズの変更をコマンドごとに反映する
+shopt -s checkwinsize
+
+# less で圧縮ファイルなどテキスト以外も読めるようにする
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# 端末が色に対応していればプロンプトに色を付ける
+if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='\u@\h:\w\$ '
+fi
+
+# xterm 系の端末ではウィンドウタイトルに user@host: dir を出す
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;\u@\h: \w\a\]$PS1"
+    ;;
+esac
+
+# ls と grep の出力に色を付ける
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias grep='grep --color=auto'
+fi
+
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Tab 補完を有効にする (POSIX モードでは読まない)
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+# PATH (~/.profile と共通。/etc/bash.bashrc が先頭に追加した Nix を後ろへ回すため、ここでも読み込む)
+if [ -f "$HOME/.config/shell/path.sh" ]; then
+    . "$HOME/.config/shell/path.sh"
+fi

@@ -1,0 +1,18 @@
+{{ if eq .chezmoi.os "windows" -}}
+# Linux 専用
+.bashrc
+.profile
+.config/ghostty
+.config/nix
+.config/shell
+.config/tmux
+.config/zed
+{{ else -}}
+# Windows 専用 (%APPDATA% / Documents)
+AppData
+Documents
+{{ end -}}
+{{ $alternate := get . "alternateGit" | default dict -}}
+{{ if not (get $alternate "enabled") -}}
+.gitconfig-alternate
+{{ end -}}

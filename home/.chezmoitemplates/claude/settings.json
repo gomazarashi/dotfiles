@@ -1,0 +1,30 @@
+{
+{{- /* draw.io で図を作るプラグインと、その取得元 */}}
+  "enabledPlugins": {
+    "drawio@drawio": true
+  },
+  "extraKnownMarketplaces": {
+    "drawio": {
+      "source": {
+        "source": "github",
+        "repo": "jgraph/drawio-mcp"
+      }
+    }
+  },
+{{- /* モデルごとの思考量 (effort) */}}
+  "modelSettings": {
+    "claude-sonnet-5": {
+      "effortLevel": "xhigh"
+    },
+    "claude-opus-5": {
+      "effortLevel": "high"
+    }
+  },
+{{- /* コンテキストが一杯になったら自動で要約する (既定値だが明示) */}}
+  "autoCompactEnabled": true,
+{{- /* commit と PR に Claude の署名 (Co-Authored-By など) を付けない */}}
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  }
+}

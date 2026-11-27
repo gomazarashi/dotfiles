@@ -1,0 +1,67 @@
+{
+    // 長い行はエディタの幅で折り返す
+    "soft_wrap": "editor_width",
+    // zed コマンドで開いたファイルは既存のウィンドウで開く
+    "cli_default_open_behavior": "existing_window",
+
+    // パネルは左、AI エージェントは右にまとめる
+    "project_panel": {
+        "dock": "left"
+    },
+    "outline_panel": {
+        "dock": "left"
+    },
+    "collaboration_panel": {
+        "dock": "left"
+    },
+    "agent": {
+        "dock": "right"
+    },
+    "git_panel": {
+        "dock": "left"
+    },
+
+    // R Markdown (.rmd) を Markdown として扱う
+    "file_types": {
+        "Markdown": [
+            "*.rmd"
+        ]
+    },
+    // 保存時に末尾の改行を補う
+    "ensure_final_newline_on_save": true,
+    // キー操作を VS Code にそろえる
+    "base_keymap": "VSCode",
+
+    // エディタ本文。日本語は Noto CJK で表示する
+    "buffer_font_family": ".ZedMono",
+    "buffer_font_fallbacks": [
+        "Noto Sans Mono CJK JP",
+        "Noto Sans CJK JP"
+    ],
+
+    // Markdownプレビュー
+    "markdown_preview": {
+        "font_family": "Noto Sans CJK JP",
+        "code_font_family": "Noto Sans Mono CJK JP"
+    },
+
+    "ui_font_size": 16,
+    "buffer_font_size": 15,
+    "theme": {
+        "mode": "dark",
+        "light": "One Light",
+        "dark": "Gruvbox Dark Hard"
+    },
+    // Typst (tinymist) のプレビューをバックグラウンドで起動しておく
+    "lsp": {
+        "tinymist": {
+            "initialization_options": {
+                "preview": {
+                    "background": {
+                        "enabled": true
+                    }
+                }
+            }
+        }
+    }
+}
